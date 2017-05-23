@@ -11,12 +11,13 @@ export class HouseService {
 
   houses$: FirebaseListObservable<Array<IHouse>>;
   routes$: FirebaseListObservable<Array<IRoute>>;
-  housesWithRoutes: Observable<Array<IHouse>>;
+  housesWithRoutes$: Observable<Array<IHouse>>;
+  unassignedHouses$: Observable<Array<IHouse>>;
 
   constructor(private db: AngularFireDatabase) {
     this.houses$ = db.list('/houses');
     this.routes$ = db.list('/routes');
-    this.housesWithRoutes = this.houses$.combineLatest(this.routes$)
+    this.housesWithRoutes$ = this.houses$.combineLatest(this.routes$)
       .map(res => {
         let [houses, routes] = res;
         const combined: Array<IHouse> = [];
@@ -31,6 +32,25 @@ export class HouseService {
         });
         return combined;
       });
+
+    this.unassignedHouses$ = this.houses$.combineLatest(this.routes$)
+      .map(res => {
+        let [houses, routes] = res;
+        const unassigned: Array<IHouse> = [];
+        houses.forEach(house => {
+          let assigned = false;
+          for (let i = routes.length; i--;) {
+            if (routes[i].houses.indexOf(house.$key) > -1) {
+              assigned = true;
+              break;
+            }
+          }
+          if (!assigned) {
+            unassigned.push(house);
+          }
+        });
+        return unassigned;
+      });
   }
 
   housesByRoute(route_key: string): Observable<Array<IHouse>> {
@@ -39,6 +59,12 @@ export class HouseService {
       .map((res) => {
         const [route, houses] = res;
         const housesInRoute = [];
+        route.houses.forEach(house_key => {
+          const houseInRoute = _.find(houses, (house) => house.$key === house_key);
+          if (houseInRoute) {
+            housesInRoute.push(houseInRoute);
+          }
+        });
         houses.forEach(house => {
           if (route.houses.indexOf(house.$key) > -1) {
             housesInRoute.push(house);
@@ -75,8 +101,8 @@ export class HouseService {
     this.removeHouseFromRoutes(house_key); // Make sure it's not attached to any routes
     const list = this.db.list(`routes/${route_key}/houses`);
     return list.first().subscribe(houses => {
-      if (!_.find(houses, (house)=> house.$value === house_key)) {
-        const house_list = houses.map(house=>house.$value);
+      if (!_.find(houses, (house) => house.$value === house_key)) {
+        const house_list = houses.map(house => house.$value);
         house_list.push(house_key);
         this.db.object(`routes/${route_key}/houses`).set(house_list);
       }
@@ -93,6 +119,14 @@ export class HouseService {
         this.db.object(`routes/${route.$key}/deliveries/${house_key}`).remove();
       });
     });
+  }
+
+  getRoute(key): Observable<IRoute> {
+    return this.db.object(`routes/${key}`);
+  }
+
+  saveRouteHouses(route_key, houses) {
+    this.db.object(`routes/${route_key}/houses`).set(houses);
   }
 
 }

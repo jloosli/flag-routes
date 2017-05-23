@@ -1,0 +1,5 @@
+<h2>Routes</h2>
+<md-card *ngFor="let route of routes | async" (click)="gotoRoute(route.$key)">
+  <md-card-title>{{route.name}}</md-card-title>
+  <md-card-subtitle>{{route.houses?.length || 0}} Houses</md-card-subtitle>
+</md-card>

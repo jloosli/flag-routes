@@ -1,0 +1,19 @@
+@import '~dragula/dist/dragula.min.css';
+.sebm-google-map-container {
+  height: 70vh;
+  margin-top: 4rem;
+}
+
+aside {
+  flex: 1 1 200px;
+  margin: 0 0.5rem;
+}
+
+.sebm-google-map-container {
+  flex: 5 1 400px;
+}
+
+.results {
+  display: flex;
+  flex-flow: row wrap;
+}
