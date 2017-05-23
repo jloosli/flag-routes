@@ -1,0 +1,44 @@
+@import 'src/styles/theme';
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
+nav {
+
+  background: mat-color($primary, 50);
+  @include respond-to(xs) {
+    & {
+      flex-flow: column;
+      height: 100vh;
+    }
+  }
+  display: flex;
+  flex-flow: row;
+  a {
+    transition: all 1s ease;
+    @include respond-to(xs) {
+      & {
+        border-left: 5px solid transparent;
+        align-items: center;
+        padding: 0 1rem;
+        flex: 4rem 0 0;
+        border-bottom: 0;
+        border-top: 0;
+      }
+    }
+    padding: 0.5rem 0;
+    flex: auto 1 1;
+    justify-content: center;
+    display: flex;
+    border-bottom: 3px solid transparent;
+    border-left: 0;
+    line-height: 2rem;
+    text-decoration: none;
+    &, &:visited {
+      color: grey;
+    }
+    &.active, &:hover {
+      border-color: mat-color($primary);
+      color: mat-color($primary);
+    }
+  }
+}

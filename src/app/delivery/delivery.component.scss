@@ -1,0 +1,16 @@
+.sebm-google-map-container {
+  height: 80vh;
+}
+
+aside {
+  flex: 1 1 200px;
+}
+
+.sebm-google-map-container {
+  flex: 5 1 400px;
+}
+
+.results {
+  display: flex;
+  flex-flow: row wrap;
+}

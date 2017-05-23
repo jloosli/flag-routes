@@ -1,0 +1,31 @@
+@import 'src/styles/theme';
+@import 'src/styles/variables';
+@import 'src/styles/mixins';
+
+.layout-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-flow: column;
+  app-nav {
+    order: 1;
+  }
+  .main {
+    order: 2;
+    margin: 0.5rem;
+  }
+  @include respond-to(xs) {
+    display: grid;
+    grid-template-columns: 60px auto;
+    grid-template-rows: 60px auto;
+
+    app-nav {
+      order: 0;
+    }
+
+    .main {
+      grid-column-start:2;
+      grid-row-start:2;
+      margin: 1rem;
+    }
+  }
+}
