@@ -10,3 +10,20 @@
 .spacer {
   flex: 1 1 auto;
 }
+
+.fab {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  z-index: 2;
+
+  &.fab-upper {
+    top:2rem;
+    bottom: initial;
+  }
+
+  &.fab-left {
+    left: 2rem;
+    right: auto;
+  }
+}

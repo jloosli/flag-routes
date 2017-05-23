@@ -4,7 +4,7 @@
     <h3>Houses</h3>
     <md-list dense [formGroup]="deliveryForm">
       <md-list-item *ngFor="let house of houses; let i=index; trackBy: byKey">
-        <md-checkbox [formControlName]="house.$key"></md-checkbox>
+        <md-checkbox [formControlName]="house.$key" (ngModelChange)="changeDelivery(house.$key, $event)"></md-checkbox>
         <h3 md-line>{{house.name}} ({{getIndexLetter(i)}})</h3>
         <p md-line>{{house.street}}</p>
         <p md-line>{{house.notes}}</p>

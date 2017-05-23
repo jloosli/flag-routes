@@ -1,3 +1,5 @@
+import {IRoute} from './route';
+
 export interface IHouse {
   name: string;
   street: string;
@@ -7,4 +9,5 @@ export interface IHouse {
   lng?: number;
   $key?: string;
   save?: any;
+  route?: IRoute;
 }

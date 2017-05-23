@@ -19,7 +19,6 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   currentRoute: IRoute = null;
   houses: Array<IHouse> = [];
   deliveryForm: FormGroup;
-  updatingForm: boolean = false;
   route_key: string;
   zoom = 16;
 
@@ -34,28 +33,32 @@ export class DeliveryComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         const [params, routes] = res;
         this.route_key = params.key;
-        this.currentRoute = _.find(routes, (route) => route.$key === params.key);
-        this.updatingForm = true;
-        if (this.currentRoute) {
+        const the_route = _.find(routes, (route) => route.$key === params.key);
+        if(the_route) {
+          if (!_.isEqual(the_route, this.currentRoute)) {
+            this.currentRoute = the_route;
+          }
           this.currentRoute.houses.forEach(house_key => {
             const delivered = !!(this.currentRoute.deliveries && this.currentRoute.deliveries[house_key]);
-            this.deliveryForm.addControl(house_key, new FormControl(delivered));
+            if(!(house_key in this.deliveryForm.value) ) {
+              this.deliveryForm.addControl(house_key, new FormControl(delivered));
+            } else {
+              if (this.deliveryForm.value[house_key] !== delivered) {
+                this.deliveryForm.controls[house_key].setValue(delivered);
+              }
+            }
+
           });
           this.houseSvc.housesByRoute(params.key).first().subscribe(houses => {
             this.houses = houses;
 
           });
-        } else {
+        }else {
           this.houses = [];
         }
-        this.updatingForm = false;
+
       });
 
-    this.deliveryForm
-      .valueChanges
-      .subscribe(deliveries => {
-        !this.updatingForm && this.houseSvc.updateDeliveries(this.route_key, deliveries);
-      });
   }
 
   ngOnDestroy() {
@@ -77,6 +80,10 @@ export class DeliveryComponent implements OnInit, OnDestroy {
 
   delivered(house: string): boolean {
     return this.currentRoute.deliveries && this.currentRoute.deliveries[house];
+  }
+
+  changeDelivery(house_key, status) {
+    this.houseSvc.updateDelivery(this.route_key,house_key,status);
   }
 
 }

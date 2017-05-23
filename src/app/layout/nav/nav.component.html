@@ -1,5 +1,6 @@
 <nav>
-  <a [routerLink]="['/']" routerLinkActive="active" mdTooltip="Home"><md-icon>near_me</md-icon></a>
+  <a [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+     mdTooltip="Home"><md-icon>near_me</md-icon></a>
   <a [routerLink]="['/houses']" routerLinkActive="active" mdTooltip="Houses"><md-icon>home</md-icon></a>
   <a [routerLink]="['/routes']" routerLinkActive="active" mdTooltip="Routes"><md-icon>directions</md-icon></a>
   <a [routerLink]="['/import-export']" routerLinkActive="active" mdTooltip="Import/Export"><md-icon>compare_arrows</md-icon></a>

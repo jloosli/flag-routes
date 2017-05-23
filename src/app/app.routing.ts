@@ -3,7 +3,8 @@ import {NgModule} from '@angular/core';
 
 const appRoutes: Routes = [
   {path: '', pathMatch: 'full', loadChildren: 'app/home/home.module#HomeModule'},
-  {path: 'deliveries', loadChildren: 'app/delivery/delivery.module#DeliveryModule'}
+  {path: 'deliveries', loadChildren: 'app/delivery/delivery.module#DeliveryModule'},
+  {path: 'houses', loadChildren: 'app/houses/houses.module#HousesModule'},
 ];
 
 @NgModule({
