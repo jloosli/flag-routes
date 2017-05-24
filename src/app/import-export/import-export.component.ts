@@ -24,7 +24,7 @@ export class ImportExportComponent implements OnInit {
     }
   }
 
-  readFile(form) {
+  readFile() {
     this.message = '';
     this.error=false;
     this.inOutSvc.importFile(this.fileToUpload)

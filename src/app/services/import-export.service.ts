@@ -28,9 +28,9 @@ export class ImportExportService {
           let [routes, houses, unassigned] = items;
           const routesToReturn = {};
           routes.forEach(route => {
-            routesToReturn[route.name] = route.houses.map(house_key=>_.find(houses, house => house.$key === house_key))
+            routesToReturn[route.name] = route.houses.map(house_key => _.find(houses, house => house.$key === house_key));
           });
-          routesToReturn['']=unassigned;
+          routesToReturn[''] = unassigned;
           const flattened = this.flattenData(routesToReturn);
           const stringified = this.stringify(flattened);
           const dataString = this.getDatastring(stringified);
@@ -42,15 +42,15 @@ export class ImportExportService {
   private flattenData(data: Object) {
     let flattened = [];
     flattened.push(ImportExportService.FIELDS);
-    for(const key in data) {
-      data[key].forEach(house=>{
+    for (const key in data) {
+      data[key].forEach(house => {
         const tmp = [];
-        ImportExportService.FIELDS.slice(0,3).forEach(field => {
+        ImportExportService.FIELDS.slice(0, 3).forEach(field => {
           tmp.push(house[field.toLowerCase()]);
         });
-        tmp.push(key)
+        tmp.push(key);
         flattened.push(tmp);
-      })
+      });
     }
     return flattened;
   }
@@ -84,7 +84,6 @@ export class ImportExportService {
             }));
           }
         });
-        console.log(exploded_result);
         if (this.checkImportedData(exploded_result)) {
           this.importData(exploded_result)
             .then(() => resolve())
@@ -132,19 +131,16 @@ export class ImportExportService {
               let route: IRoute = {
                 name: name,
                 houses: [],
-                lat: 0,
-                lng: 0,
                 deliveries: {}
               };
               resolvedHouses.forEach((house_key: string) => {
                 route.houses.push(house_key);
               });
-              console.log(route);
               routePromises.push(this.routeSvc.save(route));
             }
           });
         }
-        Promise.all(routePromises).then(_=>resolve());
+        Promise.all(routePromises).then(_ => resolve());
       });
     });
   }

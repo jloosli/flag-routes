@@ -22,8 +22,6 @@ export class RouteService {
     const routeToSave: IRoute = {
       name: _.get(route, ['name'], ''),
       houses: _.get(route, ['houses'], []),
-      lat: 0,
-      lng: 0,
       deliveries: {}
     };
     return this.db.list('routes').push(routeToSave)
