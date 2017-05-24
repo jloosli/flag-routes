@@ -40,7 +40,7 @@ export class HouseService {
         houses.forEach(house => {
           let assigned = false;
           for (let i = routes.length; i--;) {
-            if (routes[i].houses.indexOf(house.$key) > -1) {
+            if (_.get(routes, [i, 'houses'], []).indexOf(house.$key) > -1) {
               assigned = true;
               break;
             }
@@ -59,15 +59,10 @@ export class HouseService {
       .map((res) => {
         const [route, houses] = res;
         const housesInRoute = [];
-        route.houses.forEach(house_key => {
+        _.get(route, ['houses'], []).forEach(house_key => {
           const houseInRoute = _.find(houses, (house) => house.$key === house_key);
           if (houseInRoute) {
             housesInRoute.push(houseInRoute);
-          }
-        });
-        houses.forEach(house => {
-          if (route.houses.indexOf(house.$key) > -1) {
-            housesInRoute.push(house);
           }
         });
         return housesInRoute;
@@ -76,6 +71,10 @@ export class HouseService {
 
   updateDelivery(route_key: string, house_key: string, status: boolean) {
     return this.db.object(`routes/${route_key}/deliveries/${house_key}`).set(status);
+  }
+
+  clearHouses() {
+    this.db.object('houses').set({});
   }
 
   saveHouse(house) {

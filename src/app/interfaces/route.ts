@@ -4,4 +4,5 @@ export interface IRoute {
   houses: Array<string>;
   lat: number;
   lng: number;
+  name: string;
 }

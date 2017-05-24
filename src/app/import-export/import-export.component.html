@@ -1,3 +1,13 @@
-<p>
-  import-export works!
-</p>
+<h2>Import/Export Data</h2>
+<a md-raised-button color="accent" (click)="exportData()">Download Data/Template</a>
+<form class="upload" (submit)="readFile(uploadForm)" #uploadForm="ngForm">
+  <input type="file" (change)="fileChange($event)" name="uploadFile"/>
+  <button md-raised-button color="warn" [disabled]="!fileSelected">Upload Data (WARNING: overwrites existing data)</button>
+</form>
+<div *ngIf="message" class="callout" [class.is-important]="error">
+  <header *ngIf="error">Error</header>
+  <header *ngIf="!error">Success!</header>
+  <p>
+    {{message}}
+  </p>
+</div>

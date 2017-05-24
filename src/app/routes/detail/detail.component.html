@@ -5,7 +5,7 @@
     <md-list dense class="dragula-container" [dragula]="dragulaBag" [dragulaModel]="route?.houses" >
       <md-list-item *ngFor="let house of houses | async; let i=index;" class="mover">
         <md-icon md-list-icon class="draggable">swap_vert</md-icon>
-        <h3 md-line>{{house.name}} {{i}} ({{getIndexLetter(i)}})</h3>
+        <h3 md-line>{{house.name}} ({{getIndexLetter(i)}})</h3>
         <p md-line>{{house.street}}</p>
         <p md-line>{{house.notes}}</p>
         <span><button md-icon-button (click)="remove(house.$key)"><md-icon>delete</md-icon></button></span>

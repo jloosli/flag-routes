@@ -6,8 +6,7 @@ import {IHouse} from '../interfaces/house';
 import {SebmGoogleMap} from 'angular2-google-maps/core';
 import 'rxjs/add/operator/takeWhile';
 import {Router} from '@angular/router';
-
-// import 'rxjs/observable/';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-home',
@@ -56,7 +55,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
     }
-    const total = route.houses.length;
+    const total = _.get(route, ['houses'], []).length;
     return `${delivered} of ${total} Flags Delivered`;
   }
 

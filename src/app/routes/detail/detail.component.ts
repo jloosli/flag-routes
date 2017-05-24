@@ -50,7 +50,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     this.dragulaSvc.dropModel.subscribe(args => {
       let [bag, el, target, source] = args;
       this.houseSvc.saveRouteHouses(this.route_key, this.route.houses);
-      this.cdr.markForCheck();
+      // this.cdr.markForCheck();
     });
     this.dragulaSvc.setOptions(this.dragulaBag, {
       moves: (el, source, handle, sibling) => handle.tagName === 'MD-ICON'
@@ -63,7 +63,8 @@ export class DetailComponent implements OnInit, OnDestroy {
   }
 
   getIndexLetter(idx: number): string {
-    return String.fromCharCode(65 + idx);
+    const start = idx < 26 ? 65 : 71;
+    return String.fromCharCode(start + idx);
   }
 
   remove(key) {
