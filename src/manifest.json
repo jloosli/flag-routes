@@ -1,0 +1,35 @@
+{
+  "name": "Flag Routes",
+  "description": "Make your flag set up and take down much easier!",
+  "short_name": "Flag Routes",
+  "start_url": "/?app=1",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3f51b5",
+  "icons": [
+    {
+      "src": "/assets/icons/flag.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/assets/icons/flag-64.png?v=2",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/flag-128.png?v=2",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/flag-256.png?v=2",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/flag-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

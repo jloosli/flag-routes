@@ -30,7 +30,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   });
   hasGeo = false;
   drivers: Observable<Array<IDriver>>;
-  driver_icon = 'http://maps.google.com/intl/en_us/mapfiles/ms/micons/purple.png';
+  driver_icon_colors = ['purple', 'blue', 'yellow', 'green', 'red', 'orange'];
 
   constructor(private houseSvc: HouseService, private route: ActivatedRoute, private driverSvc: DriverService) {
   }
@@ -84,7 +84,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
 
     window.addEventListener('unload', _ => this.ngOnDestroy());
     this.hasGeo = this.driverSvc.hasGeo;
-    this.drivers=this.driverSvc.drivers$;
+    this.drivers = this.driverSvc.drivers$;
 
   }
 
@@ -106,6 +106,11 @@ export class DeliveryComponent implements OnInit, OnDestroy {
     return `https://mt.google.com/vt/icon?name=icons/spotlight/spotlight-waypoint-${color}.png&scale=0.9`;
   }
 
+  driverIconUrl(idx: number): string {
+    const color_idx = idx % this.driver_icon_colors.length;
+    return `http://maps.google.com/intl/en_us/mapfiles/ms/micons/${this.driver_icon_colors[color_idx]}.png`;
+  }
+
   delivered(house: string): boolean {
     return this.currentRoute.deliveries && this.currentRoute.deliveries[house];
   }
@@ -114,11 +119,11 @@ export class DeliveryComponent implements OnInit, OnDestroy {
     this.houseSvc.updateDelivery(this.route_key, house_key, status);
   }
 
-  firstInitial(name:string):string {
+  firstInitial(name: string): string {
     return name.split('')[0] || '';
   }
 
-  toggleChecks(state:boolean) {
+  toggleChecks(state: boolean) {
     for (const key in this.deliveryForm.controls) {
       this.deliveryForm.controls[key].setValue(state);
     }

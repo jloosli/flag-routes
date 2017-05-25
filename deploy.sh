@@ -1,18 +1,12 @@
 #!/usr/bin/env bash
 
-PATH=$PATH:$(npm bin)
+PATH=$PATH:$(yarn bin)
 set -x
 
 # Production build
 ng build --prod
 
-# Copy prebuilt worker into site
-cp node_modules/@angular/service-worker/bundles/worker-basic.min.js dist/
-
 # 22:36
-yarn run ngu-sw-manifest -- --module src/app/app.module.ts
+sw-precache --config=sw-precache-config.js --verbose
 
-
-# Serve
-cd dist
-http-server
+firebase deploy

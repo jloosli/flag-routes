@@ -6,7 +6,7 @@ import {HttpModule} from '@angular/http';
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app.routing';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import 'hammerjs';
+// import 'hammerjs';
 import {AngularFireDatabaseModule} from 'angularfire2/database';
 import {config} from '../environments/config';
 import {AngularFireModule} from 'angularfire2';

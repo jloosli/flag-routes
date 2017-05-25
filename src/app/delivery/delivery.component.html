@@ -46,9 +46,10 @@
                               *ngFor="let house of houses; let i = index" [label]="getIndexLetter(i)"
                               [iconUrl]="iconUrl(house.$key)"
       ></sebm-google-map-marker>
-      <sebm-google-map-marker [latitude]="driver.lat" [longitude]="driver.lng" *ngFor="let driver of drivers | async"
+      <sebm-google-map-marker [latitude]="driver.lat" [longitude]="driver.lng"
+                              *ngFor="let driver of drivers | async; let i=index"
                               [title]="driver.name" [label]="firstInitial(driver.name)"
-                              [iconUrl]="driver_icon"></sebm-google-map-marker>
+                              [iconUrl]="driverIconUrl(i)"></sebm-google-map-marker>
     </sebm-google-map>
   </div>
 </div>

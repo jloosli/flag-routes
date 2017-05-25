@@ -7,6 +7,7 @@ const appRoutes: Routes = [
   {path: 'houses', loadChildren: 'app/houses/houses.module#HousesModule'},
   {path: 'routes', loadChildren: 'app/routes/routes.module#RoutesModule'},
   {path: 'import-export', loadChildren: 'app/import-export/import-export.module#ImportExportModule'},
+  {path: '**', redirectTo: '/'},
 ];
 
 @NgModule({
