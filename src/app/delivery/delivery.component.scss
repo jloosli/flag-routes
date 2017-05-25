@@ -6,7 +6,22 @@ aside {
   flex: 1 1 200px;
 }
 
-.sebm-google-map-container {
+.actions {
+  margin: 1rem auto;
+  max-width: 800px;
+  .position{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+  }
+  .checkAll {
+    display: flex;
+    justify-content: space-around;
+  }
+
+}
+
+.map {
   flex: 5 1 400px;
 }
 

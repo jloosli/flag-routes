@@ -5,9 +5,13 @@ import {RouterModule} from '@angular/router';
 import {LayoutComponent} from '../layout/layout.component';
 import {LayoutModule} from '../layout/layout.module';
 import {HouseService} from '../services/house.service';
-import {MdCheckboxModule, MdListModule} from '@angular/material';
-import {ReactiveFormsModule} from '@angular/forms';
+import {
+  MdButtonModule, MdCardModule, MdCheckboxModule, MdIconModule, MdInputModule, MdListModule,
+  MdMenuModule
+} from '@angular/material';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AgmCoreModule} from 'angular2-google-maps/core';
+import {DriverService} from '../services/driver.service';
 
 @NgModule({
   imports: [
@@ -16,6 +20,11 @@ import {AgmCoreModule} from 'angular2-google-maps/core';
     MdListModule,
     MdCheckboxModule,
     ReactiveFormsModule,
+    MdCardModule,
+    MdInputModule,
+    MdMenuModule,
+    MdButtonModule,
+    MdIconModule,
     AgmCoreModule,
     RouterModule.forChild([
       {path: '', component: LayoutComponent, children: [
@@ -24,6 +33,6 @@ import {AgmCoreModule} from 'angular2-google-maps/core';
     ])
   ],
   declarations: [DeliveryComponent],
-  providers:[HouseService]
+  providers:[HouseService, DriverService]
 })
 export class DeliveryModule { }

@@ -1,4 +1,32 @@
 <h2>Deliveries: {{currentRoute?.name}}</h2>
+<md-card class="actions">
+  <md-card-title>Actions</md-card-title>
+  <md-card-content [formGroup]="broadcast" *ngIf="hasGeo">
+    <div class="position">
+      <md-checkbox formControlName="doBroadcast">Broadcast Position</md-checkbox>
+      <md-input-container *ngIf="broadcast.controls['doBroadcast'].value">
+        <input mdInput placeholder="Name" formControlName="name"/>
+      </md-input-container>
+    </div>
+    <div class="checkAll">
+      <div>
+        <md-menu #checkAll='mdMenu'>
+          <button md-menu-item (click)="toggleChecks(true)">
+            <md-icon>done_all</md-icon>
+            <span> Check All </span>
+          </button>
+          <button md-menu-item (click)="toggleChecks(false)">
+            <md-icon> check_box_outline_blank</md-icon>
+            <span> Uncheck All </span>
+          </button>
+        </md-menu>
+        <button md-button [mdMenuTriggerFor]="checkAll">
+          Check All
+        </button>
+      </div>
+    </div>
+  </md-card-content>
+</md-card>
 <div class="results">
   <aside>
     <h3>Houses</h3>
@@ -11,12 +39,16 @@
       </md-list-item>
     </md-list>
   </aside>
-  <sebm-google-map *ngIf="currentRoute" [latitude]="currentRoute.lat" [longitude]="currentRoute.lng" [zoom]="zoom" >
-    <sebm-google-map-marker [latitude]="house.lat" [longitude]="house.lng"
-                            *ngFor="let house of houses; let i = index" [label]="getIndexLetter(i)"
-                            [iconUrl]="iconUrl(house.$key)"
-    ></sebm-google-map-marker>
-    <sebm-google-map-marker *ngIf="current" [latitude]="current.lat" [longitude]="current.lng"
-                            [iconUrl]="symbol"></sebm-google-map-marker>
-  </sebm-google-map>
+  <div class="map">
+
+    <sebm-google-map *ngIf="currentRoute" [latitude]="currentRoute.lat" [longitude]="currentRoute.lng" [zoom]="zoom">
+      <sebm-google-map-marker [latitude]="house.lat" [longitude]="house.lng"
+                              *ngFor="let house of houses; let i = index" [label]="getIndexLetter(i)"
+                              [iconUrl]="iconUrl(house.$key)"
+      ></sebm-google-map-marker>
+      <sebm-google-map-marker [latitude]="driver.lat" [longitude]="driver.lng" *ngFor="let driver of drivers | async"
+                              [title]="driver.name" [label]="firstInitial(driver.name)"
+                              [iconUrl]="driver_icon"></sebm-google-map-marker>
+    </sebm-google-map>
+  </div>
 </div>
