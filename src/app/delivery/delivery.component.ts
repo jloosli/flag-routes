@@ -108,7 +108,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
 
   driverIconUrl(idx: number): string {
     const color_idx = idx % this.driver_icon_colors.length;
-    return `http://maps.google.com/intl/en_us/mapfiles/ms/micons/${this.driver_icon_colors[color_idx]}.png`;
+    return `https://maps.google.com/intl/en_us/mapfiles/ms/micons/${this.driver_icon_colors[color_idx]}.png`;
   }
 
   delivered(house: string): boolean {
