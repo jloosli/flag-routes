@@ -18,10 +18,10 @@ export class ImportExportComponent implements OnInit {
   }
 
   fileChange(event) {
-    this.fileSelected = event.srcElement.files && !!event.srcElement.files.length;
-    if (this.fileSelected) {
-      this.fileToUpload = event.srcElement.files[0];
-    }
+    // this.fileSelected = event.srcElement.files && !!event.srcElement.files.length;
+    // if (this.fileSelected) {
+    //   this.fileToUpload = event.srcElement.files[0];
+    // }
   }
 
   readFile() {

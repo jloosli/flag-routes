@@ -1,6 +1,6 @@
 <h2>Import/Export Data</h2>
 <a md-raised-button color="accent" (click)="exportData()">Download Data/Template</a>
-<form class="upload" (submit)="readFile(uploadForm)" #uploadForm="ngForm">
+<form class="upload" (submit)="readFile()" #uploadForm="ngForm">
   <input type="file" (change)="fileChange($event)" name="uploadFile"/>
   <button md-raised-button color="warn" [disabled]="!fileSelected">Upload Data (WARNING: overwrites existing data)</button>
 </form>
