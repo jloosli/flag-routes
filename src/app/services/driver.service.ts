@@ -51,7 +51,6 @@ export class DriverService {
   }
 
   startTracking() {
-    navigator.geolocation.getCurrentPosition(p => this.success(p), e => this.error(e), this.gps_options);
     this._watch = navigator.geolocation.watchPosition(
       this.success, e => this.error(e), this.gps_options
     );
@@ -61,12 +60,12 @@ export class DriverService {
     this.hasGeo && navigator.geolocation.clearWatch(this._watch);
   }
 
-  private success = _.debounce((position: Position) => {
+  private success = _.throttle((position: Position) => {
     this.updateDriver({
       lat: position.coords.latitude,
       lng: position.coords.longitude
     });
-  }, DriverService.POSITION_DEBOUNCE);
+  }, DriverService.POSITION_DEBOUNCE, {leading: true});
 
   private error(e: PositionError) {
     console.error(`Error: (${e.code}) ${e.message}`);
