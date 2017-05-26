@@ -61,7 +61,7 @@ export class DriverService {
     this.hasGeo && navigator.geolocation.clearWatch(this._watch);
   }
 
-  private success = _.throttle((position: Position) => {
+  private success = _.debounce((position: Position) => {
     this.updateDriver({
       lat: position.coords.latitude,
       lng: position.coords.longitude
