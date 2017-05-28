@@ -11,7 +11,7 @@ export class RouteService {
 
   constructor(private db: AngularFireDatabase) {
     this.routes$ = this.db.list('routes')
-      .map(routes=>routes.sort((a,b)=>a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1));
+      .map(routes => routes.sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1));
   }
 
   clearRoutes() {
@@ -25,7 +25,16 @@ export class RouteService {
       deliveries: {}
     };
     return this.db.list('routes').push(routeToSave)
-      .then(res=>res.key)
+      .then(res => res.key);
+  }
+
+  update(route_key, updates) {
+    const changes = _.pick(updates, ['name', 'houses', 'deliveries']);
+    return this.db.object(`routes/${route_key}`).update(changes);
+  }
+
+  remove(route_key) {
+    return this.db.object(`routes/${route_key}`).remove();
   }
 
 }

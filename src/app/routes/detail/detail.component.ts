@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, ParamMap} from '@angular/router';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import 'rxjs/add/operator/takeWhile';
 import * as _ from 'lodash';
 import {HouseService} from '../../services/house.service';
@@ -7,6 +7,7 @@ import {IHouse} from '../../interfaces/house';
 import {Observable} from 'rxjs/Observable';
 import {IRoute} from '../../interfaces/route';
 import {DragulaService} from 'ng2-dragula';
+import {RouteService} from '../../services/route.service';
 
 @Component({
   selector: 'app-detail',
@@ -24,8 +25,10 @@ export class DetailComponent implements OnInit, OnDestroy {
   zoom = 16;
   iconUrl = `https://mt.google.com/vt/icon?name=icons/spotlight/spotlight-waypoint-b.png&scale=0.9`;
 
+  editRoute:boolean = false;
+
   constructor(private aRoute: ActivatedRoute, private houseSvc: HouseService, private dragulaSvc: DragulaService,
-              private cdr: ChangeDetectorRef) {
+              private routeSvc: RouteService, private router: Router) {
   }
 
   ngOnInit() {
@@ -73,6 +76,13 @@ export class DetailComponent implements OnInit, OnDestroy {
 
   add(key) {
     this.houseSvc.addHouseToRoute(this.route_key, key);
+  }
+
+  routeNameChange = _.debounce(evt => this.routeSvc.update(this.route_key, {name: evt}), 500);
+
+  deleteRoute() {
+    this.routeSvc.remove(this.route_key)
+      .then(_=>this.router.navigate(['/routes']));
   }
 
 }

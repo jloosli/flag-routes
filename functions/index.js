@@ -36,7 +36,6 @@ exports.centerRoute = functions.database.ref('/routes/{routeId}/houses/{houseID}
       .then(coords => {
         const center_lat = coords[0].max ? (coords[0].max + coords[0].min) / 2 : 0;
         const center_lng = coords[1].max ? (coords[1].max + coords[1].min) / 2 : 0;
-        console.log(center_lat, center_lng);
         return Promise.all([
           event.data.ref.parent.parent.child('lat').set(center_lat),
           event.data.ref.parent.parent.child('lng').set(center_lng)]);
@@ -45,7 +44,9 @@ exports.centerRoute = functions.database.ref('/routes/{routeId}/houses/{houseID}
 
 exports.setHouseCoordinates = functions.database.ref('/houses/{houseId}/street')
   .onWrite(event => {
+    const prev = event.data.previous.val();
     const street = event.data.val();
+    if (prev === street || !street) return;
     console.log('setHouseCoordinates', event.params.houseId, street);
     return getLatLng(street)
       .then(lat_lng => {

@@ -17,12 +17,12 @@ export class HouseService {
   constructor(private db: AngularFireDatabase) {
     this.houses$ = db.list('/houses');
     this.routes$ = db.list('/routes');
-    this.housesWithRoutes$ = this.houses$.combineLatest(this.routes$)
+    this.housesWithRoutes$ = this.routes$.combineLatest(this.houses$)
       .map(res => {
-        let [houses, routes] = res;
+        let [ routes, houses] = res;
         const combined: Array<IHouse> = [];
         houses.forEach(house => {
-          for (let i = routes.length - 1; i--;) {
+          for (let i = routes.length; i--;) {
             if (routes[i].houses.indexOf(house.$key) > -1) {
               house.route = routes[i];
               break;

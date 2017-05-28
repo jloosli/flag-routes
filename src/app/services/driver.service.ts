@@ -3,6 +3,7 @@ import {AngularFireDatabase, FirebaseListObservable} from 'angularfire2/database
 import {IDriver} from '../interfaces/driver';
 import * as firebase from 'firebase';
 import * as _ from 'lodash';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class DriverService {
@@ -13,6 +14,7 @@ export class DriverService {
   driver_key: string = null;
   static readonly POSITION_DEBOUNCE = 5000;
   static readonly MAX_POSITION = 1000 * 60 * 15; // Delete any drivers that haven't updated in over 15 minutes
+  errors: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
   private gps_options = {
     enableHighAccuracy: true,
@@ -61,6 +63,7 @@ export class DriverService {
   }
 
   private success = _.throttle((position: Position) => {
+    this.errors.next(null);
     this.updateDriver({
       lat: position.coords.latitude,
       lng: position.coords.longitude
@@ -68,6 +71,19 @@ export class DriverService {
   }, DriverService.POSITION_DEBOUNCE, {leading: true});
 
   private error(e: PositionError) {
+    let errorMessage;
+    switch (e.code) {
+      case e.PERMISSION_DENIED:
+        errorMessage = 'Can\'t track...you have denied access to tracking';
+        break;
+      case e.POSITION_UNAVAILABLE:
+        errorMessage = 'Sorry...can\'t get position';
+        break;
+      case e.TIMEOUT:
+      default:
+        errorMessage = 'Sorry...something went wrong';
+    }
+    this.errors.next(errorMessage);
     console.error(`Error: (${e.code}) ${e.message}`);
     console.log('Sorry, no position available.');
   }

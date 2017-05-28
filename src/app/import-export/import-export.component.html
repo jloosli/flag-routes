@@ -1,13 +1,21 @@
 <h2>Import/Export Data</h2>
-<a md-raised-button color="accent" (click)="exportData()">Download Data/Template</a>
-<form class="upload" (submit)="readFile()" #uploadForm="ngForm">
-  <input type="file" (change)="fileChange($event)" name="uploadFile"/>
-  <button md-raised-button color="warn" [disabled]="!fileSelected">Upload Data (WARNING: overwrites existing data)</button>
-</form>
-<div *ngIf="message" class="callout" [class.is-important]="error">
-  <header *ngIf="error">Error</header>
-  <header *ngIf="!error">Success!</header>
-  <p>
-    {{message}}
-  </p>
-</div>
+<md-card>
+  <md-card-title>Download</md-card-title>
+  <button type="button" md-raised-button color="accent" (click)="exportData()">Download Data/Template</button>
+</md-card>
+
+<md-card>
+  <md-card-title>Upload</md-card-title>
+  <form class="upload" (submit)="readFile()" #uploadForm="ngForm">
+    <input type="file" (change)="fileChange($event)" name="uploadFile"/>
+    <button class="upload-button" md-raised-button color="warn" *ngIf="fileSelected">Upload Data (WARNING: overwrites existing data)</button>
+  </form>
+  <div *ngIf="message" class="callout" [class.is-important]="error">
+    <header *ngIf="error">Error</header>
+    <header *ngIf="!error">Success!</header>
+    <p>
+      {{message}}
+    </p>
+  </div>
+</md-card>
+

@@ -6,19 +6,24 @@ import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layout.module';
 import { DetailComponent } from './detail/detail.component';
 import {AgmCoreModule} from 'angular2-google-maps/core';
-import {MdButtonModule, MdCardModule, MdIconModule, MdListModule} from '@angular/material';
+import {MdButtonModule, MdCardModule, MdIconModule, MdInputModule, MdListModule, MdMenuModule} from '@angular/material';
 import {HouseService} from '../services/house.service';
 import {DragulaModule} from 'ng2-dragula';
+import {FormsModule} from '@angular/forms';
+import {RouteService} from '../services/route.service';
 
 @NgModule({
   imports: [
     CommonModule,
     LayoutModule,
+    FormsModule,
     AgmCoreModule,
     MdListModule,
     MdButtonModule,
     MdIconModule,
     MdCardModule,
+    MdInputModule,
+    MdMenuModule,
     DragulaModule,
     RouterModule.forChild([
       {path: '', component: LayoutComponent, children: [
@@ -28,6 +33,6 @@ import {DragulaModule} from 'ng2-dragula';
     ])
   ],
   declarations: [RoutesComponent, DetailComponent],
-  providers: [HouseService]
+  providers: [HouseService, RouteService]
 })
 export class RoutesModule { }

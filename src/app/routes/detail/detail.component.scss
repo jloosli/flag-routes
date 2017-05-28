@@ -17,3 +17,17 @@ aside {
   display: flex;
   flex-flow: row wrap;
 }
+
+header {
+  display: flex;
+  .action-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+  }
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+  }
+}

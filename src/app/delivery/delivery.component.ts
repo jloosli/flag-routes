@@ -31,11 +31,13 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   hasGeo = false;
   drivers: Observable<Array<IDriver>>;
   driver_icon_colors = ['purple', 'blue', 'yellow', 'green', 'red', 'orange'];
+  errors
 
   constructor(private houseSvc: HouseService, private route: ActivatedRoute, private driverSvc: DriverService) {
   }
 
   ngOnInit() {
+    this.errors = this.driverSvc.errors;
     this.deliveryForm = new FormGroup({});
     this.route.params
       .combineLatest(this.houseSvc.routes$)
