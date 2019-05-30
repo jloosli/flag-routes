@@ -18,7 +18,7 @@ import {AgmCoreModule} from '@agm/core';
     RouterModule.forChild([
       {
         path: '', component: LayoutComponent, children: [
-          {path: ':key', component: DeliveryComponent},
+          {path: ':id', component: DeliveryComponent},
         ],
       },
     ]),

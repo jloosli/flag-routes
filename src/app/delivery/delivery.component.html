@@ -18,12 +18,12 @@
   <div class="map">
 
     <agm-map *ngIf="currentRoute" [latitude]="currentRoute.lat" [longitude]="currentRoute.lng" [zoom]="zoom">
-      <agm-marker [latitude]="house.lat" [longitude]="house.lng"
-                              *ngFor="let house of houses; let i = index" [label]="getIndexLetter(i)"
-                              [iconUrl]="iconUrl(house.$key)"
+      <agm-marker [latitude]="delivery.house.lat" [longitude]="delivery.house.lng"
+                  *ngFor="let delivery of deliveries$ | async; let i = index" [label]="getIndexLetter(i)"
+                  [iconUrl]="iconUrl(delivery.id) | async"
       ></agm-marker>
       <agm-marker [latitude]="driver.lat" [longitude]="driver.lng"
-                              *ngFor="let driver of drivers | async; let i=index"
+                              *ngFor="let driver of drivers$ | async; let i=index"
                               [title]="driver.name" [label]="firstInitial(driver.name)"
                               [iconUrl]="driverIconUrl(i)"></agm-marker>
     </agm-map>
