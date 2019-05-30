@@ -1,34 +1,35 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import * as _ from 'lodash';
-import {HouseService} from '../../services/house.service';
-import {IRoute} from '../../interfaces/route';
-import {Observable} from 'rxjs';
+import {HouseService} from '@flags/services/house.service';
+import {IRoute} from '@flags/interfaces/route';
+import {Observable, of} from 'rxjs';
+import _get from 'lodash-es/get';
+import {RouteService} from '@flags/services/route.service';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-edit-house',
   templateUrl: './edit-house.component.html',
-  styleUrls: ['./edit-house.component.scss']
+  styleUrls: ['./edit-house.component.scss'],
 })
 export class EditHouseComponent implements OnInit {
 
-  house:any = {};
-  routes: Observable<Array<IRoute>> = Observable.of([]);
+  house: any = {};
+  routes$: Observable<Array<IRoute>>;
 
   constructor(private dialog: MatDialogRef<EditHouseComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
-              private houseSvc: HouseService) {
+              private routesSvc: RouteService) {
   }
 
   ngOnInit() {
     this.house = {
-      name: _.get(this.data, ['name'], ''),
-      street: _.get(this.data, ['street'], ''),
-      notes: _.get(this.data, ['notes'], ''),
-      route: _.get(this.data, ['route','$key'], ''),
-      $key: _.get(this.data, ['$key'], '')
+      name: _get(this.data, ['name'], ''),
+      street: _get(this.data, ['street'], ''),
+      notes: _get(this.data, ['notes'], ''),
+      route: _get(this.data, ['route', 'id'], ''),
+      id: _get(this.data, ['id'], ''),
     };
-    this.routes = this.houseSvc.routes$
-      .map((routes) => routes.sort((a, b) => a.name < b.name ? -1 : 1));
+    this.routes$ = this.routesSvc.routes$;
   }
 
   saveHouse() {
@@ -36,7 +37,7 @@ export class EditHouseComponent implements OnInit {
   }
 
   removeHouse() {
-    this.dialog.close({remove: this.house.$key})
+    this.dialog.close({remove: this.house.id});
   }
 
 }

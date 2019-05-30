@@ -7,8 +7,9 @@ import {MatInputModule} from '@angular/material/input';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatTableModule} from '@angular/material/table';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatSelectModule} from '@angular/material/select';
 
-const modules = [
+const materialModules = [
   MatCardModule,
   MatButtonModule,
   MatCheckboxModule,
@@ -16,13 +17,14 @@ const modules = [
   MatMenuModule,
   MatIconModule,
   MatTableModule,
-  MatDialogModule
+  MatDialogModule,
+  MatSelectModule
 ];
 
 @NgModule({
   declarations: [],
-  imports: modules,
-  exports: modules,
+  imports: materialModules,
+  exports: materialModules,
 })
 export class MaterialDesignModule {
 }

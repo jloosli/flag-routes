@@ -15,7 +15,7 @@ export class HouseService {
   unassignedHouses$: Observable<IHouse[]>;
 
   constructor(private fs: AngularFirestore) {
-    this.housesCollection = this.fs.collection<IHouse>('houses');
+    this.housesCollection = this.fs.collection<IHouse>('houses', ref => ref.orderBy('name'));
     this.houses$ = this.housesCollection.valueChanges({idField: 'id'});
     this.housesWithRoutes$ = this.houses$;
     this.unassignedHouses$ = this.houses$;

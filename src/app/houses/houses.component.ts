@@ -20,8 +20,7 @@ export class HousesComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.housesWithRoutes = this.houseSvc.housesWithRoutes$
-      .map(houses => houses.sort((a, b) => a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase() ? -1 : 1));
+    this.housesWithRoutes = this.houseSvc.housesWithRoutes$;
   }
 
   editHouse(house = {}) {

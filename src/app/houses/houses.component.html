@@ -4,6 +4,12 @@
   </button>
 </div>
 <h2>Houses</h2>
+<table mat-table>
+  <mat-text-column name="name"></mat-text-column>
+  <mat-text-column name="street"></mat-text-column>
+  <mat-text-column name="notes"></mat-text-column>
+  <mat-text-column name="route"></mat-text-column>
+</table>
 <mat-list dense>
   <mat-list-item *ngFor="let house of housesWithRoutes | async" (click)="editHouse(house)">
     {{house.name}} {{house.street}} <span *ngIf="house.notes">({{house.notes}})</span>
