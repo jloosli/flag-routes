@@ -1,11 +1,13 @@
 import {Component, OnInit} from '@angular/core';
-import {HouseService} from '../services/house.service';
+import {HouseService} from '@flags/services/house.service';
 import {Observable} from 'rxjs';
-import {IRoute} from '../interfaces/route';
+import {IRoute} from '@flags/interfaces/route';
 import {EditHouseComponent} from './edit-house/edit-house.component';
 import {MatDialog} from '@angular/material';
 import {filter} from 'rxjs/operators';
 import {DeliveriesService} from '@flags/services/deliveries.service';
+import {IHouse} from '@flags/interfaces/house';
+import {DataSource} from '@angular/cdk/table';
 
 @Component({
   selector: 'app-houses',
@@ -16,12 +18,15 @@ export class HousesComponent implements OnInit {
 
   housesWithRoutes: Observable<Array<any>>;
   routes: Observable<Array<IRoute>>;
+  displayedColumns = ['name', 'street', 'notes', 'route'];
+  housesSource: HousesSource;
 
   constructor(private houseSvc: HouseService, private dialog: MatDialog, private deliveriesSvc: DeliveriesService) {
   }
 
   ngOnInit() {
     this.housesWithRoutes = this.houseSvc.housesWithRoutes$;
+    this.housesSource = new HousesSource(this.housesWithRoutes);
   }
 
   editHouse(house = {}) {
@@ -41,6 +46,21 @@ export class HousesComponent implements OnInit {
           });
         }
       });
+  }
+
+}
+
+export class HousesSource extends DataSource<IHouse> {
+  constructor(private houses$: Observable<IHouse[]>) {
+    super();
+    this.houses$ = houses$;
+  }
+
+  connect(): Observable<IHouse[] | ReadonlyArray<IHouse>> {
+    return this.houses$;
+  }
+
+  disconnect(): void {
   }
 
 }

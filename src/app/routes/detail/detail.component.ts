@@ -22,7 +22,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   unassigned: Observable<Array<IHouse>>;
   zoom = 16;
   iconUrl = `https://mt.google.com/vt/icon?name=icons/spotlight/spotlight-waypoint-b.png&scale=0.9`;
-
+  routeName = 'bob';
   editRoute = false;
   route$: Observable<IRoute>;
 

@@ -4,15 +4,14 @@
   </button>
 </div>
 <h2>Houses</h2>
-<table mat-table>
+<table [dataSource]="housesSource" mat-table>
   <mat-text-column name="name"></mat-text-column>
   <mat-text-column name="street"></mat-text-column>
   <mat-text-column name="notes"></mat-text-column>
-  <mat-text-column name="route"></mat-text-column>
+  <ng-container matColumnDef="route">
+    <th *matHeaderCellDef mat-header-cell> Route</th>
+    <td *matCellDef="let house" mat-cell> {{house?.route?.name}} </td>
+  </ng-container>
+  <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+  <tr *matRowDef="let row: columns: displayedColumns;" mat-row></tr>
 </table>
-<mat-list dense>
-  <mat-list-item *ngFor="let house of housesWithRoutes | async" (click)="editHouse(house)">
-    {{house.name}} {{house.street}} <span *ngIf="house.notes">({{house.notes}})</span>
-      <span class="spacer"></span> {{house.route?.name}}
-  </mat-list-item>
-</mat-list>

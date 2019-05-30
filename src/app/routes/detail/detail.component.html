@@ -6,7 +6,7 @@
     </button>
     <div class="actions" *ngIf="editRoute">
       <mat-form-field>
-        <input matInput placeholder="Route Name" [(ngModel)]="(route$ | async).name"
+        <input [(ngModel)]="routeName" matInput placeholder="Route Name"
                (ngModelChange)="routeNameChange($event)"/>
       </mat-form-field>
       <div class="remove-route">
@@ -25,15 +25,6 @@
     <table mat-table>
 
     </table>
-    <!--    <mat-list dense class="dragula-container" [dragula]="dragulaBag" [dragulaModel]="route?.houses">-->
-    <!--      <mat-list-item *ngFor="let house of houses | async; let i=index;" class="mover">-->
-    <!--        <mat-icon mat-list-icon class="draggable">swap_vert</mat-icon>-->
-    <!--        <h3 mat-line>{{house.name}} ({{getIndexLetter(i)}})</h3>-->
-    <!--        <p mat-line>{{house.street}}</p>-->
-    <!--        <p mat-line>{{house.notes}}</p>-->
-    <!--        <span><button mat-icon-button (click)="remove(house.id)"><mat-icon>delete</mat-icon></button></span>-->
-    <!--      </mat-list-item>-->
-    <!--    </mat-list>-->
   </aside>
   <agm-map *ngIf="(route$|async) as route" [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom">
     <agm-marker [latitude]="house.lat" [longitude]="house.lng"
@@ -43,12 +34,5 @@
   </agm-map>
   <aside class="unused-houses" *ngIf="(unassigned | async)?.length > 0">
     <h3>Unassigned Houses</h3>
-    <!--    <mat-list dense>-->
-    <!--      <mat-list-item *ngFor="let house of unassigned | async">-->
-    <!--        <h3 mat-line>{{house.name}}</h3>-->
-    <!--        <p mat-line>{{house.street}}</p>-->
-    <!--        <span><button mat-icon-button (click)="add(house.id)"><mat-icon>add</mat-icon></button></span>-->
-    <!--      </mat-list-item>-->
-    <!--    </mat-list>-->
   </aside>
 </div>

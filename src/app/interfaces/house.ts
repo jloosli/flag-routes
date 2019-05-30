@@ -8,7 +8,6 @@ export interface IHouse {
   lat?: number;
   lng?: number;
   id?: string;
-  save?: any;
   route_ref?: DocumentReference
-  route?: IRoute;
+  route?: Partial<IRoute>;
 }
