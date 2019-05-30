@@ -1,40 +1,72 @@
-import {Injectable} from '@angular/core';
-import {IRoute} from '../interfaces/route';
-import {Observable} from 'rxjs/Observable';
-import {AngularFireDatabase} from 'angularfire2/database';
-import * as _ from 'lodash';
+import {forwardRef, Inject, Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {AngularFirestore, AngularFirestoreCollection, DocumentReference} from '@angular/fire/firestore';
+import {IRoute} from '@flags/interfaces/route';
+import {DeliveriesService} from '@flags/services/deliveries.service';
+import {combineLatest} from 'rxjs/internal/observable/combineLatest';
+import {map, switchMap} from 'rxjs/operators';
+import {zip} from 'rxjs/internal/observable/zip';
+import {of} from 'rxjs/internal/observable/of';
+import {HouseService} from '@flags/services/house.service';
 
 @Injectable()
 export class RouteService {
 
-  routes$: Observable<Array<IRoute>>;
+  routes$: Observable<IRoute[]>;
+  routesWithHouses$: Observable<IRoute[]>;
+  private routesCollection: AngularFirestoreCollection<IRoute>;
 
-  constructor(private db: AngularFireDatabase) {
-    this.routes$ = this.db.list('routes')
-      .map(routes => routes.sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1));
+  constructor(
+    private af: AngularFirestore,
+    @Inject(forwardRef(() => DeliveriesService)) private deliveriesSvc: DeliveriesService,
+    @Inject(forwardRef(() => HouseService)) private housesSvc: HouseService,
+  ) {
+    this.routesCollection = af.collection<IRoute>('routes', ref => ref.orderBy('order'));
+    this.routes$ = this.routesCollection.valueChanges({idField: 'id'});
+    this.routesWithHouses$ = combineLatest([this.routes$, this.housesSvc.houses$]).pipe(
+      switchMap(([routes, houses]) => {
+        return zip(
+          of(routes),
+          zip(...routes.map((route: IRoute) => this.deliveriesSvc.getRouteDeliveries(this.getRouteRef(route.id as string)))),
+          of(houses),
+        );
+      }),
+      map(([routes, deliveries, houses]) => {
+        return routes.map((route, idx) => {
+          const routeDeliveries = deliveries[idx];
+          return {...route, houses: routeDeliveries.map(delivery => houses.find(house => house.id === delivery.id))};
+        }) as IRoute[];
+      }),
+    );
   }
 
   clearRoutes() {
-    return this.db.object('routes').set({});
+    return this.routesCollection.get().subscribe(routeSnap => routeSnap.forEach(result => result.ref.delete()));
   }
 
-  save(route) {
+  add(name: string) {
     const routeToSave: IRoute = {
-      name: _.get(route, ['name'], ''),
-      houses: _.get(route, ['houses'], []),
-      deliveries: {}
+      name: name,
+      house_count: 0,
     };
-    return this.db.list('routes').push(routeToSave)
-      .then(res => res.key);
+    return this.routesCollection.add(routeToSave);
   }
 
-  update(route_key, updates) {
-    const changes = _.pick(updates, ['name', 'houses', 'deliveries']);
-    return this.db.object(`routes/${route_key}`).update(changes);
+  update(route_id: string, updates: Partial<IRoute>) {
+    return this.routesCollection.doc(route_id).set(updates, {merge: true});
   }
 
-  remove(route_key) {
-    return this.db.object(`routes/${route_key}`).remove();
+  remove(route_ref: string | DocumentReference) {
+    const ref = this.getRouteRef(route_ref);
+    return Promise.all([ref.delete(), this.deliveriesSvc.removeAllRouteDeliveries(ref)]);
   }
+
+  getRouteRef(route_ref: string | DocumentReference): DocumentReference {
+    if (typeof route_ref === 'string') {
+      route_ref = this.routesCollection.doc(route_ref).ref;
+    }
+    return route_ref;
+  }
+
 
 }

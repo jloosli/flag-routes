@@ -1,61 +1,50 @@
-import {Component, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {HouseService} from '../services/house.service';
-import {IRoute} from '../interfaces/route';
-import {Observable} from 'rxjs/Observable';
-import {IHouse} from '../interfaces/house';
-import {SebmGoogleMap} from 'angular2-google-maps/core';
-import 'rxjs/add/operator/takeWhile';
+import {Component, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {HouseService} from '@flags/services/house.service';
+import {IRoute} from '@flags/interfaces/route';
+import {combineLatest, Observable} from 'rxjs';
+import {IHouse} from '@flags/interfaces/house';
+
 import {Router} from '@angular/router';
 import * as _ from 'lodash';
+import {RouteService} from '@flags/services/route.service';
+import {AgmMap} from '@agm/core';
+import {DocumentReference} from '@angular/fire/firestore';
+import {DeliveriesService} from '@flags/services/deliveries.service';
+import {map, switchMap} from 'rxjs/operators';
+import {of} from 'rxjs/internal/observable/of';
+import {zip} from 'rxjs/internal/observable/zip';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
 
-  routes: Observable<Array<IRoute>>;
-  houses: Observable<Array<IHouse>>;
-  housesByKey: { [key: string]: IHouse }={};
-  zoom: number = 15;
-  active: boolean = true;
+  routesWithHouses$: Observable<Array<IRoute>>;
+  housesByKey: { [key: string]: IHouse } = {};
+  zoom = 15;
 
-  @ViewChildren(SebmGoogleMap) maps: QueryList<SebmGoogleMap>;
+  @ViewChildren(AgmMap) maps: QueryList<AgmMap>;
 
-  constructor(private houseSvc: HouseService, private router: Router) {
+  constructor(private houseSvc: HouseService, private router: Router, private routesSvc: RouteService) {
   }
 
   ngOnInit() {
-    this.routes = this.houseSvc.routes$.map(routes => {
-      return routes.sort((a, b) => a.name < b.name ? -1 : 1);
-    });
-    this.houses = this.houseSvc.houses$;
-    this.houses
-      .takeWhile(() => this.active)
-      .subscribe((houses) => {
-        const houseObj = {};
-        houses.forEach(house => {
-          houseObj[house.$key] = house;
-        });
-        this.housesByKey = houseObj;
-      });
-  }
-
-  ngOnDestroy() {
-    this.active = false;
+    this.routesWithHouses$ = this.routesSvc.routesWithHouses$;
   }
 
   deliveryStats(route: IRoute): string {
     let delivered = 0;
-    if (route.deliveries) {
-      for (let key in route.deliveries) {
-        if (route.deliveries[key] === true) {
-          delivered++;
-        }
-      }
-    }
-    const total = _.get(route, ['houses'], []).length;
+    let total= 27;
+    // if (route.deliveries) {
+    //   for (let key in route.deliveries) {
+    //     if (route.deliveries[key] === true) {
+    //       delivered++;
+    //     }
+    //   }
+    // }
+    // const total = _.get(route, ['houses$'], []).length;
     return `${delivered} of ${total} Flags Delivered`;
   }
 
@@ -65,11 +54,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private delivered(route: IRoute, houseKey: string): boolean {
-    return route.deliveries && route.deliveries[houseKey];
+    // return route.deliveries && route.deliveries[houseKey];
+    return true;
   }
 
-  goToDelivery(key) {
-    this.router.navigate(['/deliveries', key]);
+  goToDelivery(id: string) {
+    this.router.navigate(['/deliveries', id]);
   }
 
 }

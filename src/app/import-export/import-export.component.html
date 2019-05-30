@@ -1,14 +1,14 @@
 <h2>Import/Export Data</h2>
-<md-card>
-  <md-card-title>Download</md-card-title>
-  <button type="button" md-raised-button color="accent" (click)="exportData()">Download Data/Template</button>
-</md-card>
+<mat-card>
+  <mat-card-title>Download</mat-card-title>
+  <button type="button" mat-raised-button color="accent" (click)="exportData()">Download Data/Template</button>
+</mat-card>
 
-<md-card>
-  <md-card-title>Upload</md-card-title>
+<mat-card>
+  <mat-card-title>Upload</mat-card-title>
   <form class="upload" (submit)="readFile()" #uploadForm="ngForm">
     <input type="file" (change)="fileChange($event)" name="uploadFile"/>
-    <button class="upload-button" md-raised-button color="warn" *ngIf="fileSelected">Upload Data (WARNING: overwrites existing data)</button>
+    <button class="upload-button" mat-raised-button color="warn" *ngIf="fileSelected">Upload Data (WARNING: overwrites existing data)</button>
   </form>
   <div *ngIf="message" class="callout" [class.is-important]="error">
     <header *ngIf="error">Error</header>
@@ -17,5 +17,5 @@
       {{message}}
     </p>
   </div>
-</md-card>
+</mat-card>
 

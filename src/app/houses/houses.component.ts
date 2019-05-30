@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {HouseService} from '../services/house.service';
 import {IHouse} from '../interfaces/house';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {IRoute} from '../interfaces/route';
 import {EditHouseComponent} from './edit-house/edit-house.component';
-import {MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialog, MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-houses',
@@ -16,7 +16,7 @@ export class HousesComponent implements OnInit {
   housesWithRoutes: Observable<Array<any>>;
   routes: Observable<Array<IRoute>>;
 
-  constructor(private houseSvc: HouseService, private dialog: MdDialog) {
+  constructor(private houseSvc: HouseService, private dialog: MatDialog) {
   }
 
   ngOnInit() {

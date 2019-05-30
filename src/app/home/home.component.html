@@ -1,18 +1,18 @@
 <h2>Flag Routes</h2>
 
 <div class="routes">
-  <md-card *ngFor="let route of routes | async" class="route" (click)="goToDelivery(route.$key)">
-    <md-card-title>{{route.name}}</md-card-title>
-    <md-card-subtitle>{{deliveryStats(route)}}</md-card-subtitle>
-    <md-card-content>
-      <sebm-google-map [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom"
+  <mat-card *ngFor="let route of routesWithHouses$ | async" class="route" (click)="goToDelivery(route.id)">
+    <mat-card-title>{{route.name}}</mat-card-title>
+    <mat-card-subtitle>{{deliveryStats(route)}}</mat-card-subtitle>
+    <mat-card-content>
+      <agm-map [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom"
                        [mapDraggable]="false" [disableDefaultUI]="true"
                        [zoomControl]="false" [streetViewControl]="false" [scrollwheel]="false">
-        <sebm-google-map-marker [latitude]="housesByKey[houseKey]?.lat"
-                                [longitude]="housesByKey[houseKey]?.lng"
-                                *ngFor="let houseKey of route.houses; "
-                                [iconUrl]="iconUrl(route, houseKey)"></sebm-google-map-marker>
-      </sebm-google-map>
-    </md-card-content>
-  </md-card>
+        <agm-marker [latitude]="house?.lat"
+                                [longitude]="house?.lng"
+                                *ngFor="let house of route.houses; "
+                                [iconUrl]="iconUrl(route, house.id)"></agm-marker>
+      </agm-map>
+    </mat-card-content>
+  </mat-card>
 </div>

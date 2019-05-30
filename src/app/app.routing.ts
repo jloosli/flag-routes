@@ -2,11 +2,11 @@ import {RouterModule, Routes} from '@angular/router';
 import {NgModule} from '@angular/core';
 
 const appRoutes: Routes = [
-  {path: '', pathMatch: 'full', loadChildren: 'app/home/home.module#HomeModule'},
-  {path: 'deliveries', loadChildren: 'app/delivery/delivery.module#DeliveryModule'},
-  {path: 'houses', loadChildren: 'app/houses/houses.module#HousesModule'},
-  {path: 'routes', loadChildren: 'app/routes/routes.module#RoutesModule'},
-  {path: 'import-export', loadChildren: 'app/import-export/import-export.module#ImportExportModule'},
+  {path: '', pathMatch: 'full', loadChildren: () => import('app/home/home.module').then(m => m.HomeModule)},
+  {path: 'deliveries', loadChildren: () => import('app/delivery/delivery.module').then(m => m.DeliveryModule)},
+  {path: 'houses', loadChildren: () => import('app/houses/houses.module').then(m => m.HousesModule)},
+  {path: 'routes', loadChildren: () => import('app/routes/routes.module').then(m => m.RoutesModule)},
+  {path: 'import-export', loadChildren: () => import('app/import-export/import-export.module').then(m => m.ImportExportModule)},
   {path: '**', redirectTo: '/'},
 ];
 

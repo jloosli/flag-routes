@@ -4,15 +4,13 @@ import { LayoutComponent } from './layout.component';
 import {RouterModule} from '@angular/router';
 import { HeaderComponent } from './header/header.component';
 import { NavComponent } from './nav/nav.component';
-import {MdIconModule, MdToolbarModule, MdTooltipModule} from '@angular/material';
+import {MaterialDesignModule} from '@flags/modules/material-design.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    MaterialDesignModule,
     RouterModule,
-    MdToolbarModule,
-    MdIconModule,
-    MdTooltipModule
   ],
   declarations: [LayoutComponent, HeaderComponent, NavComponent]
 })

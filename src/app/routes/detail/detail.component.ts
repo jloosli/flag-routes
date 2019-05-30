@@ -1,10 +1,12 @@
+
+import {takeWhile} from 'rxjs/operators';
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
-import 'rxjs/add/operator/takeWhile';
+
 import * as _ from 'lodash';
 import {HouseService} from '../../services/house.service';
 import {IHouse} from '../../interfaces/house';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {IRoute} from '../../interfaces/route';
 import {DragulaService} from 'ng2-dragula';
 import {RouteService} from '../../services/route.service';
@@ -32,8 +34,8 @@ export class DetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.aRoute.params
-      .takeWhile(() => this.active)
+    this.aRoute.params.pipe(
+      takeWhile(() => this.active))
       .switchMap(params => {
         if (params['id']) {
           this.route_key = params['id'];
@@ -56,7 +58,7 @@ export class DetailComponent implements OnInit, OnDestroy {
       // this.cdr.markForCheck();
     });
     this.dragulaSvc.setOptions(this.dragulaBag, {
-      moves: (el, source, handle, sibling) => handle.tagName === 'MD-ICON'
+      moves: (el, source, handle, sibling) => handle.tagName === 'mat-ICON'
     });
   }
 

@@ -1,8 +1,11 @@
+import {IHouse} from '@flags/interfaces/house';
+
 export interface IRoute {
-  $key?: string;
-  deliveries?: { [id: string]: boolean };
-  houses?: Array<string>;
+  id?: string;
+  order?: number;
   lat?: number;
   lng?: number;
   name: string;
+  house_count: number;
+  houses?: IHouse[];
 }

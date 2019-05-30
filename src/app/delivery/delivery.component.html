@@ -1,58 +1,31 @@
-<h2>Deliveries: {{currentRoute?.name}}</h2>
-<md-card class="action-wrapper">
-  <md-card-title>Actions</md-card-title>
-  <md-card-content [formGroup]="broadcast" *ngIf="hasGeo">
-    <div class="position">
-      <md-checkbox formControlName="doBroadcast">Broadcast Position</md-checkbox>
-      <md-input-container *ngIf="broadcast.controls['doBroadcast'].value">
-        <input mdInput placeholder="Name" formControlName="name"/>
-      </md-input-container>
-    </div>
-    <div *ngIf="errors | async" [style.color]="red">
-      {{errors | async}}
-    </div>
-    <div class="checkAll">
-      <div>
-        <md-menu #checkAll='mdMenu'>
-          <button md-menu-item (click)="toggleChecks(true)">
-            <md-icon>done_all</md-icon>
-            <span> Check All </span>
-          </button>
-          <button md-menu-item (click)="toggleChecks(false)">
-            <md-icon> check_box_outline_blank</md-icon>
-            <span> Uncheck All </span>
-          </button>
-        </md-menu>
-        <button md-button [mdMenuTriggerFor]="checkAll">
-          Check All
-        </button>
-      </div>
-    </div>
-  </md-card-content>
-</md-card>
+<h2>Delivery: {{currentRoute?.name}}</h2>
 <div class="results">
   <aside>
     <h3>Houses</h3>
-    <md-list dense [formGroup]="deliveryForm">
-      <md-list-item *ngFor="let house of houses; let i=index; trackBy: byKey">
-        <md-checkbox [formControlName]="house.$key" (ngModelChange)="changeDelivery(house.$key, $event)"></md-checkbox>
-        <h3 md-line>{{house.name}} ({{getIndexLetter(i)}})</h3>
-        <p md-line>{{house.street}}</p>
-        <p md-line>{{house.notes}}</p>
-      </md-list-item>
-    </md-list>
+    <table mat-table [dataSource]="routeSource">
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let house">
+          <mat-checkbox></mat-checkbox>
+        </td>
+      </ng-container>
+      <mat-text-column name="name"></mat-text-column>
+      <mat-text-column name="street"></mat-text-column>
+    </table>
   </aside>
   <div class="map">
 
-    <sebm-google-map *ngIf="currentRoute" [latitude]="currentRoute.lat" [longitude]="currentRoute.lng" [zoom]="zoom">
-      <sebm-google-map-marker [latitude]="house.lat" [longitude]="house.lng"
+    <agm-map *ngIf="currentRoute" [latitude]="currentRoute.lat" [longitude]="currentRoute.lng" [zoom]="zoom">
+      <agm-marker [latitude]="house.lat" [longitude]="house.lng"
                               *ngFor="let house of houses; let i = index" [label]="getIndexLetter(i)"
                               [iconUrl]="iconUrl(house.$key)"
-      ></sebm-google-map-marker>
-      <sebm-google-map-marker [latitude]="driver.lat" [longitude]="driver.lng"
+      ></agm-marker>
+      <agm-marker [latitude]="driver.lat" [longitude]="driver.lng"
                               *ngFor="let driver of drivers | async; let i=index"
                               [title]="driver.name" [label]="firstInitial(driver.name)"
-                              [iconUrl]="driverIconUrl(i)"></sebm-google-map-marker>
-    </sebm-google-map>
+                              [iconUrl]="driverIconUrl(i)"></agm-marker>
+    </agm-map>
   </div>
 </div>

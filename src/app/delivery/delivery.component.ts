@@ -1,15 +1,17 @@
+
+import {combineLatest, takeWhile} from 'rxjs/operators';
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {HouseService} from '../services/house.service';
+import {HouseService} from '@flags/services/house.service';
 import {ActivatedRoute} from '@angular/router';
-import {IRoute} from '../interfaces/route';
-import 'rxjs/add/operator/combineLatest';
-import 'rxjs/add/operator/takeWhile';
+import {IRoute} from '@flags/interfaces/route';
+
+
 import * as _ from 'lodash';
-import {IHouse} from '../interfaces/house';
+import {IHouse} from '@flags/interfaces/house';
 import {FormControl, FormGroup} from '@angular/forms';
-import {DriverService} from '../services/driver.service';
-import {IDriver} from '../interfaces/driver';
-import {Observable} from 'rxjs/Observable';
+import {IDriver} from '@flags/interfaces/driver';
+import {Observable} from 'rxjs';
+import {DriversService} from '@flags/services/drivers.service';
 
 @Component({
   selector: 'app-delivery',
@@ -18,7 +20,7 @@ import {Observable} from 'rxjs/Observable';
 })
 export class DeliveryComponent implements OnInit, OnDestroy {
 
-  active: boolean = true;
+  active = true;
   currentRoute: IRoute = null;
   houses: Array<IHouse> = [];
   deliveryForm: FormGroup;
@@ -31,17 +33,15 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   hasGeo = false;
   drivers: Observable<Array<IDriver>>;
   driver_icon_colors = ['purple', 'blue', 'yellow', 'green', 'red', 'orange'];
-  errors
 
-  constructor(private houseSvc: HouseService, private route: ActivatedRoute, private driverSvc: DriverService) {
+  constructor(private houseSvc: HouseService, private route: ActivatedRoute, private driverSvc: DriversService) {
   }
 
   ngOnInit() {
-    this.errors = this.driverSvc.errors;
     this.deliveryForm = new FormGroup({});
-    this.route.params
-      .combineLatest(this.houseSvc.routes$)
-      .takeWhile(() => this.active)
+    this.route.params.pipe(
+      combineLatest(this.houseSvc.routes$),
+      takeWhile(() => this.active),)
       .subscribe(res => {
         const [params, routes] = res;
         this.route_key = params.key;
@@ -71,7 +71,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
 
       });
 
-    this.broadcast.controls['doBroadcast'].valueChanges.takeWhile(() => this.active)
+    this.broadcast.controls['doBroadcast'].valueChanges.pipe(takeWhile(() => this.active))
       .subscribe(broadcast => {
         if (broadcast) {
           this.driverSvc.createDriver(this.broadcast.controls['name'].value);
@@ -80,7 +80,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.broadcast.controls['name'].valueChanges.takeWhile(() => this.active)
+    this.broadcast.controls['name'].valueChanges.pipe(takeWhile(() => this.active))
       .debounceTime(500)
       .subscribe(name => this.driverSvc.updateDriver({name: name}));
 
@@ -92,7 +92,6 @@ export class DeliveryComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.active = false;
-    this.driverSvc.removeDriver();
   }
 
   getIndexLetter(idx: number): string {

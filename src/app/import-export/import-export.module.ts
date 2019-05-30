@@ -7,17 +7,15 @@ import {LayoutModule} from '../layout/layout.module';
 import {ImportExportService} from '../services/import-export.service';
 import {HouseService} from '../services/house.service';
 import {FormsModule} from '@angular/forms';
-import {MdButtonModule, MdCardModule, MdInputModule} from '@angular/material';
 import {RouteService} from '../services/route.service';
+import {MaterialDesignModule} from '@flags/modules/material-design.module';
 
 @NgModule({
   imports: [
     CommonModule,
     LayoutModule,
     FormsModule,
-    MdButtonModule,
-    MdInputModule,
-    MdCardModule,
+    MaterialDesignModule,
     RouterModule.forChild([
       {path: '', component: LayoutComponent, children: [
         {path: '', component: ImportExportComponent}

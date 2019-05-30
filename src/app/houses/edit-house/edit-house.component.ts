@@ -1,9 +1,9 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {HouseService} from '../../services/house.service';
 import {IRoute} from '../../interfaces/route';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-edit-house',
@@ -15,7 +15,7 @@ export class EditHouseComponent implements OnInit {
   house:any = {};
   routes: Observable<Array<IRoute>> = Observable.of([]);
 
-  constructor(private dialog: MdDialogRef<EditHouseComponent>, @Inject(MD_DIALOG_DATA) public data: any,
+  constructor(private dialog: MatDialogRef<EditHouseComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
               private houseSvc: HouseService) {
   }
 

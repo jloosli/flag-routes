@@ -1,19 +1,19 @@
 <header>
   <h2>Route: {{route?.name}}</h2>
   <div class="action-wrapper">
-    <button md-icon-button (click)="editRoute = !editRoute">
-      <md-icon>edit</md-icon>
+    <button mat-icon-button (click)="editRoute = !editRoute">
+      <mat-icon>edit</mat-icon>
     </button>
     <div class="actions" *ngIf="editRoute">
-      <md-input-container>
-        <input mdInput placeholder="Route Name" [(ngModel)]="route.name" (ngModelChange)="routeNameChange($event)"/>
-      </md-input-container>
+      <mat-form-field>
+        <input matInput placeholder="Route Name" [(ngModel)]="route.name" (ngModelChange)="routeNameChange($event)"/>
+      </mat-form-field>
       <div class="remove-route">
-        <md-menu #removeAlert="mdMenu">
-          <button md-menu-item (click)="deleteRoute()"> Are you sure? </button>
-        </md-menu>
+        <mat-menu #removeAlert="matMenu">
+          <button mat-menu-item (click)="deleteRoute()"> Are you sure? </button>
+        </mat-menu>
 
-        <button md-button color="warn" [mdMenuTriggerFor]="removeAlert">Delete Route</button>
+        <button mat-button color="warn" [matMenuTriggerFor]="removeAlert">Delete Route</button>
       </div>
     </div>
   </div>
@@ -21,15 +21,15 @@
 <div class="results">
   <aside>
     <h3>Houses</h3>
-    <md-list dense class="dragula-container" [dragula]="dragulaBag" [dragulaModel]="route?.houses">
-      <md-list-item *ngFor="let house of houses | async; let i=index;" class="mover">
-        <md-icon md-list-icon class="draggable">swap_vert</md-icon>
-        <h3 md-line>{{house.name}} ({{getIndexLetter(i)}})</h3>
-        <p md-line>{{house.street}}</p>
-        <p md-line>{{house.notes}}</p>
-        <span><button md-icon-button (click)="remove(house.$key)"><md-icon>delete</md-icon></button></span>
-      </md-list-item>
-    </md-list>
+    <mat-list dense class="dragula-container" [dragula]="dragulaBag" [dragulaModel]="route?.houses">
+      <mat-list-item *ngFor="let house of houses | async; let i=index;" class="mover">
+        <mat-icon mat-list-icon class="draggable">swap_vert</mat-icon>
+        <h3 mat-line>{{house.name}} ({{getIndexLetter(i)}})</h3>
+        <p mat-line>{{house.street}}</p>
+        <p mat-line>{{house.notes}}</p>
+        <span><button mat-icon-button (click)="remove(house.$key)"><mat-icon>delete</mat-icon></button></span>
+      </mat-list-item>
+    </mat-list>
   </aside>
   <sebm-google-map *ngIf="route && houses" [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom">
     <sebm-google-map-marker [latitude]="house.lat" [longitude]="house.lng"
@@ -39,12 +39,12 @@
   </sebm-google-map>
   <aside class="unused-houses" *ngIf="(unassigned | async)?.length > 0">
     <h3>Unassigned Houses</h3>
-    <md-list dense>
-      <md-list-item *ngFor="let house of unassigned | async">
-        <h3 md-line>{{house.name}}</h3>
-        <p md-line>{{house.street}}</p>
-        <span><button md-icon-button (click)="add(house.$key)"><md-icon>add</md-icon></button></span>
-      </md-list-item>
-    </md-list>
+    <mat-list dense>
+      <mat-list-item *ngFor="let house of unassigned | async">
+        <h3 mat-line>{{house.name}}</h3>
+        <p mat-line>{{house.street}}</p>
+        <span><button mat-icon-button (click)="add(house.$key)"><mat-icon>add</mat-icon></button></span>
+      </mat-list-item>
+    </mat-list>
   </aside>
 </div>

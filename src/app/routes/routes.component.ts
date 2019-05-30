@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {IRoute} from '../interfaces/route';
 import {IHouse} from '../interfaces/house';
 import {HouseService} from '../services/house.service';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {Router} from '@angular/router';
 
 @Component({

@@ -1,12 +1,12 @@
 <div class="fab">
-  <button md-fab title="Add new house" (click)="editHouse()">
-    <md-icon class="md-24">add</md-icon>
+  <button mat-fab title="Add new house" (click)="editHouse()">
+    <mat-icon class="mat-24">add</mat-icon>
   </button>
 </div>
 <h2>Houses</h2>
-<md-list dense>
-  <md-list-item *ngFor="let house of housesWithRoutes | async" (click)="editHouse(house)">
+<mat-list dense>
+  <mat-list-item *ngFor="let house of housesWithRoutes | async" (click)="editHouse(house)">
     {{house.name}} {{house.street}} <span *ngIf="house.notes">({{house.notes}})</span>
       <span class="spacer"></span> {{house.route?.name}}
-  </md-list-item>
-</md-list>
+  </mat-list-item>
+</mat-list>
