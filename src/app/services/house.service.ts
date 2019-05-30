@@ -6,7 +6,9 @@ import _get from 'lodash-es/get';
 import {AngularFirestore, AngularFirestoreCollection, DocumentReference} from '@angular/fire/firestore';
 import {map} from 'rxjs/operators';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class HouseService {
 
   private housesCollection: AngularFirestoreCollection<IHouse>;

@@ -37,7 +37,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.drivers$ = this.driversService.driver$;
+    this.drivers$ = this.driversService.drivers$;
     this.deliveryForm = new FormGroup({});
     this.deliveries$ = combineLatest([this.route.paramMap, this.routeSvc.routes$]).pipe(
       switchMap(([routeParams, routes]) => {

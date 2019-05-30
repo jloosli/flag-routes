@@ -1,34 +1,23 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as localForage from 'localforage';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Driver } from '@flags/interfaces/driver';
-import { BehaviorSubject, Observable } from 'rxjs';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {IDriver} from '@flags/interfaces/driver';
+import {BehaviorSubject, Observable} from 'rxjs';
 import * as firebase from 'firebase/app';
 import _throttle from 'lodash-es/throttle';
-import { filter, switchMap } from 'rxjs/operators';
+import {filter, switchMap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DriversService {
 
-  constructor(private af: AngularFirestore) {
-    this._hasGeo = 'geolocation' in navigator;
-    this.driversCollection = this.af.collection('drivers');
-    this.drivers$ = this.driversCollection.valueChanges();
-    this.setDriverID();
-    this.driver$ = this._driverID.pipe(
-      filter(Boolean),
-      switchMap(id => this.driversCollection.doc<Driver>(id).valueChanges())
-    );
-  }
-
   static readonly POSITION_DEBOUNCE = 5000;
-  private _driverID = new BehaviorSubject<string>(null);
-  drivers$: Observable<Driver[]>;
+  private _driverID = new BehaviorSubject<string|null>(null);
+  drivers$: Observable<IDriver[]>;
 
-  driver$: Observable<Driver>;
-  private _error$ = new BehaviorSubject<string>(null);
+  driver$: Observable<IDriver>;
+  private _error$ = new BehaviorSubject<string|null>(null);
   error$ = this._error$.asObservable();
 
   private gps_options = {
@@ -38,7 +27,7 @@ export class DriversService {
   };
   private readonly _hasGeo: boolean;
   private _watch: number;
-  private driversCollection: AngularFirestoreCollection<Driver>;
+  private driversCollection: AngularFirestoreCollection<IDriver>;
 
   private success = _throttle((position: Position) => {
     // this.errors.next(null);
@@ -46,28 +35,40 @@ export class DriversService {
     this.updateLocation(coords.latitude, coords.longitude);
   }, DriversService.POSITION_DEBOUNCE, { leading: true });
 
+  constructor(private af: AngularFirestore) {
+    this._hasGeo = 'geolocation' in navigator;
+    this.driversCollection = this.af.collection('drivers');
+    this.drivers$ = this.driversCollection.valueChanges();
+    this.setDriverID();
+    this.driver$ = this._driverID.pipe(
+      filter(Boolean),
+      switchMap(id => this.driversCollection.doc<IDriver>(id).valueChanges() as Observable<IDriver>)
+    );
+  }
+
+
+
   async setDriverID(): Promise<void> {
     let id: string;
     try {
       id = await localForage.getItem('driver_id') as string;
     } catch (err) {
-    }
-    if (!id) {
       id = this.af.createId();
       await localForage.setItem('driver_id', id);
     }
+
     this._driverID.next(id);
   }
 
   updateName(name: string = '') {
     if (!this._hasGeo) return;
-    return this.af.collection('drivers').doc(this._driverID.getValue()).set({ name }, { merge: true });
+    return this.af.collection('drivers').doc(this._driverID.getValue() as string).set({ name }, { merge: true });
   }
 
   updateLocation(lat: number, lng: number) {
     if (!this._hasGeo) return;
     const lastUpdate = firebase.firestore.FieldValue.serverTimestamp();
-    return this.af.collection('drivers').doc(this._driverID.getValue()).set({ lat, lng, lastUpdate }, { merge: true });
+    return this.af.collection('drivers').doc(this._driverID.getValue() as string).set({ lat, lng, lastUpdate }, { merge: true });
   }
 
   startTracking() {

@@ -8,7 +8,9 @@ import {take} from 'rxjs/operators';
 import {DocumentReference} from '@angular/fire/firestore';
 import {DeliveriesService} from '@flags/services/deliveries.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ImportExportService {
 
   private static FIELDS: Array<string> = ['Name', 'Street', 'Notes', 'Route'];

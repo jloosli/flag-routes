@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {AngularFirestore, AngularFirestoreCollection, DocumentReference} from '@angular/fire/firestore';
 import {IRoute} from '@flags/interfaces/route';
@@ -9,7 +9,9 @@ import {zip} from 'rxjs/internal/observable/zip';
 import {of} from 'rxjs/internal/observable/of';
 import {HouseService} from '@flags/services/house.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class RouteService {
 
   routes$: Observable<IRoute[]>;
@@ -18,8 +20,8 @@ export class RouteService {
 
   constructor(
     private af: AngularFirestore,
-    @Inject(forwardRef(() => DeliveriesService)) private deliveriesSvc: DeliveriesService,
-    @Inject(forwardRef(() => HouseService)) private housesSvc: HouseService,
+    private deliveriesSvc: DeliveriesService,
+    private housesSvc: HouseService,
   ) {
     this.routesCollection = af.collection<IRoute>('routes', ref => ref.orderBy('order'));
     this.routes$ = this.routesCollection.valueChanges({idField: 'id'});

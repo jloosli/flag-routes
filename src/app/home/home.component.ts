@@ -1,18 +1,12 @@
 import {Component, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {HouseService} from '@flags/services/house.service';
 import {IRoute} from '@flags/interfaces/route';
-import {combineLatest, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {IHouse} from '@flags/interfaces/house';
 
 import {Router} from '@angular/router';
-import * as _ from 'lodash';
 import {RouteService} from '@flags/services/route.service';
 import {AgmMap} from '@agm/core';
-import {DocumentReference} from '@angular/fire/firestore';
-import {DeliveriesService} from '@flags/services/deliveries.service';
-import {map, switchMap} from 'rxjs/operators';
-import {of} from 'rxjs/internal/observable/of';
-import {zip} from 'rxjs/internal/observable/zip';
 
 @Component({
   selector: 'app-home',
