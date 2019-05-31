@@ -8,6 +8,7 @@ import {filter} from 'rxjs/operators';
 import {DeliveriesService} from '@flags/services/deliveries.service';
 import {IHouse} from '@flags/interfaces/house';
 import {DataSource} from '@angular/cdk/table';
+import {RouteService} from '@flags/services/route.service';
 
 @Component({
   selector: 'app-houses',
@@ -21,7 +22,7 @@ export class HousesComponent implements OnInit {
   displayedColumns = ['name', 'street', 'notes', 'route'];
   housesSource: HousesSource;
 
-  constructor(private houseSvc: HouseService, private dialog: MatDialog, private deliveriesSvc: DeliveriesService) {
+  constructor(private houseSvc: HouseService, private dialog: MatDialog, private deliveriesSvc: DeliveriesService, private routesSvc: RouteService) {
   }
 
   ngOnInit() {
@@ -41,7 +42,7 @@ export class HousesComponent implements OnInit {
         } else {
           this.houseSvc.saveHouse(res).then(house_ref => {
             if (res.route) {
-              this.deliveriesSvc.addDelivery(res.route, house_ref);
+              this.deliveriesSvc.addDelivery(this.routesSvc.getRouteRef(res.route), house_ref);
             }
           });
         }

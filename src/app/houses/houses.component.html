@@ -1,5 +1,5 @@
 <div class="fab">
-  <button mat-fab title="Add new house" (click)="editHouse()">
+  <button (click)="editHouse()" mat-fab matTooltip="Add new house">
     <mat-icon class="mat-24">add</mat-icon>
   </button>
 </div>
@@ -13,5 +13,5 @@
     <td *matCellDef="let house" mat-cell> {{house?.route?.name}} </td>
   </ng-container>
   <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-  <tr *matRowDef="let row: columns: displayedColumns;" mat-row></tr>
+  <tr (click)="editHouse(house)" *matRowDef="let house: columns: displayedColumns;" class="house-list" mat-row></tr>
 </table>
