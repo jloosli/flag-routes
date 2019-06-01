@@ -12,13 +12,13 @@
     "target": "es2015",
     "paths": {
       "@flags/interfaces/*": [
-        "app/interfaces/*"
+        "src/app/interfaces/*"
       ],
       "@flags/modules/*": [
-        "app/modules/*"
+        "src/app/modules/*"
       ],
       "@flags/services/*": [
-        "app/services/*"
+        "src/app/services/*"
       ]
     },
     "typeRoots": [

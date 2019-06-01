@@ -23,8 +23,8 @@ export class DeliveriesService {
     return deliveryDoc.set(delivery, {merge: true}).then(() => deliveryDoc.ref);
   }
 
-  removeDelivery(deliveryRef: DocumentReference): Promise<void> {
-    return this.fs.doc(deliveryRef).delete();
+  removeDelivery(routeRef: DocumentReference, house_id:string): Promise<void> {
+    return this.fs.doc(routeRef).collection('deliveries').doc(house_id).delete();
   }
 
   async removeAllRouteDeliveries(routeRef: DocumentReference) {

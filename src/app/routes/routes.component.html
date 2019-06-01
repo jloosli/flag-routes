@@ -1,5 +1,5 @@
 <h2>Routes</h2>
 <mat-card *ngFor="let route of routes$ | async" (click)="gotoRoute(route.id)">
   <mat-card-title>{{route.name}}</mat-card-title>
-  <mat-card-subtitle>{{route.houses?.length || 0}} Houses</mat-card-subtitle>
+  <mat-card-subtitle>{{route.house_count || 0}} Houses</mat-card-subtitle>
 </mat-card>

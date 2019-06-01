@@ -5,6 +5,7 @@ import {ClientResponse, GeocodingResponse, GeocodingResponseStatus, GeocodingRes
 admin.initializeApp();
 import DocumentSnapshot = admin.firestore.DocumentSnapshot;
 import DataSnapshot = admin.database.DataSnapshot;
+import FieldValue = admin.firestore.FieldValue;
 
 const googleMapsClient = require('@google/maps').createClient({
   key: functions.config().maps.key,
@@ -17,12 +18,13 @@ const city_state = 'Ogden Utah, 84401';
 
 const setHouseCoordinates = functions.firestore.document('/houses/{houseId}')
   .onWrite((change: functions.Change<DocumentSnapshot>, context: functions.EventContext) => {
-    const {street: beforeStreet} = change.before.data() as { street: string };
-    const {street: afterStreet} = change.before.data() as { street: string };
-    if (beforeStreet === afterStreet || !afterStreet) {
-      return;
+    const {street: beforeStreet = undefined} = change.before.data() as { street: string } || {};
+    const {street: afterStreet = undefined} = change.after.data() as { street: string } || {};
+    if (!afterStreet || beforeStreet === afterStreet) {
+      return 0;
     }
-    console.log('setHouseCoordinates', context.params.houseId, afterStreet);
+    const {houseId} = context.params;
+    console.log('setHouseCoordinates', houseId, afterStreet);
     return getLatLng(afterStreet)
       .then(({lat, lng}) => {
         console.log(`${afterStreet}: (${lat}, ${lng})`);
@@ -30,31 +32,75 @@ const setHouseCoordinates = functions.firestore.document('/houses/{houseId}')
       });
   });
 
-const centerRoute = functions.firestore.document('routes/{routeId}/deliveries/{deliveryID}')
+const centerRoute = functions.firestore.document('routes/{routeId}/deliveries/{deliveryId}')
   .onWrite(async (change: functions.Change<DocumentSnapshot>, context: functions.EventContext) => {
-    const before = change.before.data();
-    const after = change.after.data();
-    if (!after) {
+    if (!change.after.exists) {
       return;
     }
+    const {routeId} = context.params;
+    const before = change.before.data();
+    const after = change.after.data() || {};
     if (!before || after.lat !== before.lat || after.lng !== before.lng) {
-      const deliveriesSnap = await fs.collection('routes').doc(context.params.routeID).collection('deliveries').get();
-      const current = {lat: {max: null, min: null}, lng: {max: null, min: null}};
-      deliveriesSnap.forEach(deliverySnap => {
+      const housesSnap = await fs.collection('houses')
+        .where('route_ref', '==', fs.collection('routes').doc(routeId))
+        .get();
+      const all: { lat: number[], lng: number[] } = {lat: [], lng: []};
+      housesSnap.forEach(deliverySnap => {
         const {lat, lng} = deliverySnap.data();
-        // @ts-ignore TS doesn't like initial values of max and min to be null, but JS handles it OK
-        current.lat = {max: Math.max(current.lat.max, lat), min: Math.min(current.lat.min, lat)};
-        // @ts-ignore
-        current.lng = {max: Math.max(current.lng.max, lng), min: Math.min(current.lng.min, lng)};
+        if (lat && lng) {
+          all.lat.push(lat);
+          all.lng.push(lng);
+        }
       });
-      return fs.collection('routes').doc(context.params.routeId)
-        .update({
-          lat: ((current.lat.max || 0) + (current.lat.min || 0)) / 2,
-          lng: ((current.lng.max || 0) + (current.lng.min || 0)) / 2,
-        });
+      if (all.lat.length > 0) {
+        const ref = fs.collection('routes').doc(routeId);
+        console.log('All:', all);
+        return ref
+          .update({
+            lat: (Math.max(...all.lat) + Math.min(...all.lat)) / 2,
+            lng: (Math.max(...all.lng) + Math.min(...all.lng)) / 2,
+          });
+      }
+
+
     }
     return;
   });
+
+const addRoute = functions.firestore.document('routes/{routeId}/deliveries/{deliveryId}')
+  .onCreate((deliverySnap: DocumentSnapshot, context: functions.EventContext) => {
+    const {deliveryId, routeId} = context.params;
+    const houseReference = fs.collection('houses').doc(deliveryId);
+    const routeRef = fs.collection('routes').doc(routeId);
+    return routeRef.update({
+      house_count: FieldValue.increment(1),
+    })
+      .then(() => routeRef.get())
+      .then(routeSnap => {
+        const {name = ''} = routeSnap.data() || {};
+        return name;
+      }).then(routeName => {
+        return houseReference.set({
+          route: {name: routeName, id: routeId},
+          route_ref: routeRef,
+        }, {merge: true});
+      });
+
+  });
+
+const removeRoute = functions.firestore.document('routes/{routeId}/deliveries/{deliveryId}')
+  .onDelete((deliverySnap: DocumentSnapshot, context: functions.EventContext) => {
+    const {deliveryId, routeId} = context.params;
+    const houseReference = fs.collection('houses').doc(deliveryId);
+    const routeRef = fs.collection('routes').doc(routeId);
+    return routeRef.update({
+      house_count: FieldValue.increment(-1),
+    }).then(() => houseReference.update({
+      route: FieldValue.delete(),
+      route_ref: FieldValue.delete(),
+    }));
+  });
+
 
 const centerRouteDB = functions.database.ref('/routes/{routeId}/houses/{houseID}')
   .onWrite((change: functions.Change<DataSnapshot>, context: functions.EventContext) => {
@@ -132,20 +178,24 @@ async function getLatLng(street: string) {
   const formatted = getFormattedAddress(street);
   return googleMapsClient.geocode({address: formatted})
     .asPromise()
-    .then()
-    .then((response: ClientResponse<GeocodingResponse<GeocodingResponseStatus>>) => response.json.results)
+    .then((response: ClientResponse<GeocodingResponse<GeocodingResponseStatus>>) => {
+      console.log('getlatLng results', response);
+      return response.json.results;
+    })
     .then(([result]: [GeocodingResult]) => {
       return {
         lat: result.geometry.location.lat,
         lng: result.geometry.location.lng,
       };
     })
-    .catch((err: any) => console.error(`Missing Address: ${street}`));
+    .catch((err: any) => {
+      console.error(err);
+      console.error(`Missing Address: ${formatted}`);
+    });
 }
 
 function getFormattedAddress(address: string): string {
-  // return encodeURIComponent(`${address} ${city_state}`);
   return `${address} ${city_state}`;
 }
 
-export {setHouseCoordinatesDB, centerRouteDB, setHouseCoordinates, centerRoute};
+export {setHouseCoordinatesDB, centerRouteDB, setHouseCoordinates, centerRoute, addRoute, removeRoute};

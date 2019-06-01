@@ -30,7 +30,7 @@ export class HousesComponent implements OnInit {
     this.housesSource = new HousesSource(this.housesWithRoutes);
   }
 
-  editHouse(house = {}) {
+  editHouse(house: IHouse = {} as IHouse) {
     this.dialog.open(EditHouseComponent, {data: house})
       .afterClosed()
       .pipe(
@@ -42,7 +42,14 @@ export class HousesComponent implements OnInit {
         } else {
           this.houseSvc.saveHouse(res).then(house_ref => {
             if (res.route) {
-              this.deliveriesSvc.addDelivery(this.routesSvc.getRouteRef(res.route), house_ref);
+              const routeRef = this.routesSvc.getRouteRef(res.route);
+              if (!house || house.route_ref !== routeRef) {
+                this.deliveriesSvc.addDelivery(routeRef, house_ref);
+              }
+            } else {
+              if (house && house.route_ref) {
+                this.deliveriesSvc.removeDelivery(house.route_ref, house_ref.id);
+              }
             }
           });
         }

@@ -2,7 +2,6 @@ import {Component, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {HouseService} from '@flags/services/house.service';
 import {IRoute} from '@flags/interfaces/route';
 import {Observable} from 'rxjs';
-import {IHouse} from '@flags/interfaces/house';
 
 import {Router} from '@angular/router';
 import {RouteService} from '@flags/services/route.service';
@@ -16,7 +15,6 @@ import {AgmMap} from '@agm/core';
 export class HomeComponent implements OnInit {
 
   routesWithHouses$: Observable<Array<IRoute>>;
-  housesByKey: { [key: string]: IHouse } = {};
   zoom = 15;
 
   @ViewChildren(AgmMap) maps: QueryList<AgmMap>;
@@ -30,7 +28,7 @@ export class HomeComponent implements OnInit {
 
   deliveryStats(route: IRoute): string {
     let delivered = 0;
-    let total= 27;
+    let total = route.house_count || 0;
     // if (route.deliveries) {
     //   for (let key in route.deliveries) {
     //     if (route.deliveries[key] === true) {

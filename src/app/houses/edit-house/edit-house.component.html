@@ -11,12 +11,13 @@
       <input matInput [(ngModel)]="house.notes" name="notes" placeholder="Notes"/>
     </mat-form-field>
     <mat-select placeholder="Route" [(ngModel)]="house.route" name="route">
+      <mat-option value="">(Unassigned)</mat-option>
       <mat-option *ngFor="let route of routes$ | async" [value]="route.id">{{route.name}}</mat-option>
     </mat-select>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button color="warn" *ngIf="house.id" (click)="removeHouse()">Delete</button>
+  <button (click)="removeHouse()" *ngIf="canRemove" color="warn" mat-button>Delete</button>
   <span class="spacer"></span>
   <button mat-button mat-dialog-close>Close</button>
   <button mat-button (click)="saveHouse()" [disabled]="!f.valid">Save</button>
