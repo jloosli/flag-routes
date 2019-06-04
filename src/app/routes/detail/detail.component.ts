@@ -1,4 +1,4 @@
-import {filter, map, shareReplay, switchMap, take} from 'rxjs/operators';
+import {filter, map, shareReplay, switchMap, take, tap} from 'rxjs/operators';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
@@ -26,13 +26,13 @@ export class DetailComponent implements OnInit, OnDestroy {
   unassigned: Observable<Array<IHouse>>;
   zoom = 16;
   iconUrl = `https://mt.google.com/vt/icon?name=icons/spotlight/spotlight-waypoint-b.png&scale=0.9`;
-  routeName = 'bob';
   editRoute = false;
   route$: Observable<IRoute>;
   deliveries$: Observable<Delivery[]>;
   deliveriesSource: DeliveriesSource;
 
   displayedColumns = ['handle', 'name', 'remove'];
+  routeName: string;
 
   routeNameChange = _debounce(evt => this.routeSvc.update(this.route_key, {name: evt}), 500);
 
@@ -51,6 +51,7 @@ export class DetailComponent implements OnInit, OnDestroy {
         }
         return route;
       }),
+      tap(route => this.routeName = route.name),
       shareReplay({bufferSize: 1, refCount: true}),
     );
 
@@ -77,14 +78,10 @@ export class DetailComponent implements OnInit, OnDestroy {
       return;
     }
     this.route$.pipe(take(1))
-      .subscribe(route => this.deliveriesSvc.reorderDeliveries(route.ref, previousIndex, currentIndex));
-    // this.deliveries$.pipe(take(1)).subscribe(deliveries=>{
-    //   deliveries.map(delivery=>{
-    //     if(delivery.order === previ)
-    //   })
-    // });
-    // this.deliveriesSvc.updateDelivery();
-
+      .subscribe(route => this.deliveriesSvc.reorderDeliveries(
+        // @ts-ignore
+        route.ref,
+        previousIndex, currentIndex));
   }
 
   getIndexLetter(idx: number): string {
@@ -92,8 +89,15 @@ export class DetailComponent implements OnInit, OnDestroy {
     return String.fromCharCode(start + idx);
   }
 
-  remove(key: string) {
-    // this.houseSvc.removeHouseFromRoutes(key);
+  remove(id: string) {
+    this.route$.pipe(
+      take(1),
+    ).subscribe(route => this.deliveriesSvc.removeDelivery(
+      // @ts-ignore Doesn't know route ref exists
+      route.ref,
+      id),
+    );
+
   }
 
   add(key: string) {

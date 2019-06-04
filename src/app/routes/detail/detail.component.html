@@ -40,7 +40,7 @@
       <ng-container matColumnDef="remove">
         <th *matHeaderCellDef mat-header-cell> Remove?</th>
         <td *matCellDef="let delivery" mat-cell>
-          <button mat-icon-button>
+          <button (click)="remove(delivery.id)" mat-icon-button>
             <mat-icon>delete</mat-icon>
           </button>
         </td>
