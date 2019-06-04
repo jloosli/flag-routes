@@ -22,8 +22,32 @@
 <div class="results">
   <aside>
     <h3>Houses</h3>
-    <table mat-table>
+    <table (cdkDropListDropped)="drop($event)" [dataSource]="deliveriesSource" cdkDropList mat-table>
+      <ng-container matColumnDef="handle">
+        <th *matHeaderCellDef mat-header-cell>Order</th>
+        <td *matCellDef="let delivery" mat-cell>
+          <mat-icon cdkDragHandle>drag_indicator</mat-icon>
+        </td>
+      </ng-container>
 
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell> Name</th>
+        <td *matCellDef="let delivery" mat-cell> {{delivery.house.name}}<br/>{{delivery.house.street}} </td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="remove">
+        <th *matHeaderCellDef mat-header-cell> Remove?</th>
+        <td *matCellDef="let delivery" mat-cell>
+          <button mat-icon-button>
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns;" [cdkDragData]="row" cdkDrag mat-row></tr>
     </table>
   </aside>
   <agm-map *ngIf="(route$|async) as route" [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom">

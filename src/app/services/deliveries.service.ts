@@ -3,6 +3,10 @@ import {AngularFirestore, DocumentReference} from '@angular/fire/firestore';
 import {IHouse} from '@flags/interfaces/house';
 import {Delivery} from '@flags/interfaces/delivery';
 import {Observable} from 'rxjs/internal/Observable';
+import {HouseService} from '@flags/services/house.service';
+import {pipe} from 'rxjs/internal-compatibility';
+import {map, withLatestFrom} from 'rxjs/operators';
+import {collSnapshotWithIDs} from '../shared/rxPipes';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +27,7 @@ export class DeliveriesService {
     return deliveryDoc.set(delivery, {merge: true}).then(() => deliveryDoc.ref);
   }
 
-  removeDelivery(routeRef: DocumentReference, house_id:string): Promise<void> {
+  removeDelivery(routeRef: DocumentReference, house_id: string): Promise<void> {
     return this.fs.doc(routeRef).collection('deliveries').doc(house_id).delete();
   }
 
@@ -39,7 +43,21 @@ export class DeliveriesService {
   }
 
   getRouteDeliveries(routeRef: DocumentReference): Observable<Delivery[]> {
-    return this.fs.doc(routeRef).collection<Delivery>('deliveries', ref => ref.orderBy('order'))
-      .valueChanges({idField: 'id'});
+    return this.fs.doc(routeRef).collection<Delivery>('deliveries', ref => ref.orderBy('order')).snapshotChanges()
+      .pipe(collSnapshotWithIDs<Delivery>());
+  }
+
+  withHouses(housesSvc: HouseService): Observable<Delivery[]> {
+    return pipe(
+      withLatestFrom(housesSvc.houses$),
+      map(([deliveries, houses]: [Delivery[], IHouse[]]) => {
+        return deliveries.map(delivery => {
+          const house: IHouse | undefined = houses.find(house => house.id === delivery.id);
+          if (house) {
+            return {...delivery, house: house};
+          }
+        });
+      }),
+    );
   }
 }

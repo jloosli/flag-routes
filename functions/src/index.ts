@@ -6,6 +6,10 @@ admin.initializeApp();
 import DocumentSnapshot = admin.firestore.DocumentSnapshot;
 import DataSnapshot = admin.database.DataSnapshot;
 import FieldValue = admin.firestore.FieldValue;
+import Change = functions.Change;
+import EventContext = functions.EventContext;
+import DocumentReference = admin.firestore.DocumentReference;
+import QueryDocumentSnapshot = admin.firestore.QueryDocumentSnapshot;
 
 const googleMapsClient = require('@google/maps').createClient({
   key: functions.config().maps.key,
@@ -32,8 +36,9 @@ const setHouseCoordinates = functions.firestore.document('/houses/{houseId}')
       });
   });
 
-const centerRoute = functions.firestore.document('routes/{routeId}/deliveries/{deliveryId}')
-  .onWrite(async (change: functions.Change<DocumentSnapshot>, context: functions.EventContext) => {
+const deliveryDocumentReference = functions.firestore.document('routes/{routeId}/deliveries/{deliveryId}');
+const centerRoute = deliveryDocumentReference
+  .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
     if (!change.after.exists) {
       return;
     }
@@ -67,40 +72,59 @@ const centerRoute = functions.firestore.document('routes/{routeId}/deliveries/{d
     return;
   });
 
-const addRoute = functions.firestore.document('routes/{routeId}/deliveries/{deliveryId}')
-  .onCreate((deliverySnap: DocumentSnapshot, context: functions.EventContext) => {
+const addDeliveryToRoute = deliveryDocumentReference
+  .onCreate(async (deliverySnap: DocumentSnapshot, context: functions.EventContext) => {
     const {deliveryId, routeId} = context.params;
     const houseReference = fs.collection('houses').doc(deliveryId);
     const routeRef = fs.collection('routes').doc(routeId);
-    return routeRef.update({
-      house_count: FieldValue.increment(1),
-    })
-      .then(() => routeRef.get())
-      .then(routeSnap => {
-        const {name = ''} = routeSnap.data() || {};
-        return name;
-      }).then(routeName => {
-        return houseReference.set({
-          route: {name: routeName, id: routeId},
-          route_ref: routeRef,
-        }, {merge: true});
-      });
-
+    const routeSnap = await routeRef.get();
+    const {name: routeName = '', house_count = 0} = routeSnap.data() || {};
+    return Promise.all([
+      routeRef.set({
+        house_count: house_count + 1,
+      }, {merge: true}),
+      houseReference.set({
+        route: {name: routeName, id: routeId},
+        route_ref: routeRef,
+      }, {merge: true}),
+      deliverySnap.ref.set({
+        order: house_count,
+      }, {merge: true}),
+    ]);
   });
 
-const removeRoute = functions.firestore.document('routes/{routeId}/deliveries/{deliveryId}')
+const reorderDeliveries = async (routeRef: DocumentReference, startingOrder: number, ignoreDelivery?: DocumentReference) => {
+  let order = startingOrder;
+  console.log('Reorder from ', order);
+  const deliveriesSnap = await routeRef.collection('deliveries').where('order', '>=', order).get();
+  if (ignoreDelivery) {
+    order++;
+  }
+  const deliveryUpdates: Promise<any>[] = [];
+  deliveriesSnap.forEach((deliverySnap: QueryDocumentSnapshot) => {
+    if (ignoreDelivery && ignoreDelivery === deliverySnap.ref) {
+      return;
+    }
+    deliveryUpdates.push(deliverySnap.ref.set({order: order++}, {merge: true}));
+  });
+  return Promise.all(deliveryUpdates);
+};
+
+
+const removeDeliveryFromRoute = deliveryDocumentReference
   .onDelete((deliverySnap: DocumentSnapshot, context: functions.EventContext) => {
     const {deliveryId, routeId} = context.params;
     const houseReference = fs.collection('houses').doc(deliveryId);
     const routeRef = fs.collection('routes').doc(routeId);
+    const {order = null} = deliverySnap.data() || {};
     return routeRef.update({
       house_count: FieldValue.increment(-1),
     }).then(() => houseReference.update({
       route: FieldValue.delete(),
       route_ref: FieldValue.delete(),
-    }));
-  });
+    })).then(() => reorderDeliveries(routeRef as unknown as DocumentReference, order));
 
+  });
 
 const centerRouteDB = functions.database.ref('/routes/{routeId}/houses/{houseID}')
   .onWrite((change: functions.Change<DataSnapshot>, context: functions.EventContext) => {
@@ -198,4 +222,11 @@ function getFormattedAddress(address: string): string {
   return `${address} ${city_state}`;
 }
 
-export {setHouseCoordinatesDB, centerRouteDB, setHouseCoordinates, centerRoute, addRoute, removeRoute};
+export {
+  setHouseCoordinatesDB,
+  centerRouteDB,
+  setHouseCoordinates,
+  centerRoute,
+  addDeliveryToRoute,
+  removeDeliveryFromRoute,
+};

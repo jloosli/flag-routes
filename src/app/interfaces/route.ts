@@ -1,6 +1,7 @@
 import {IHouse} from '@flags/interfaces/house';
+import {FSItem} from '@flags/interfaces/fsitem';
 
-export interface IRoute {
+export interface IRoute extends FSItem {
   id?: string;
   order?: number;
   lat?: number;

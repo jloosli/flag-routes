@@ -10,6 +10,8 @@ import {config} from '../environments/config';
 import {AngularFireModule} from '@angular/fire';
 import {AngularFirestoreModule} from '@angular/fire/firestore';
 import {AgmCoreModule} from '@agm/core';
+import {ServiceWorkerModule} from '@angular/service-worker';
+import {environment} from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import {AgmCoreModule} from '@agm/core';
     AngularFireModule.initializeApp(config.firebaseConfig),
     AngularFirestoreModule,
     AgmCoreModule.forRoot({apiKey: config.google.maps.apiKey}),
-    AppRoutingModule
+    AppRoutingModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,13 +1,17 @@
-import {map} from 'rxjs/operators';
+import {filter, map, share, switchMap, tap} from 'rxjs/operators';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 import {HouseService} from '@flags/services/house.service';
 import {IHouse} from '@flags/interfaces/house';
-import {Observable} from 'rxjs';
+import {combineLatest, Observable} from 'rxjs';
 import {RouteService} from '@flags/services/route.service';
 import _debounce from 'lodash-es/debounce';
 import {IRoute} from '@flags/interfaces/route';
+import {DataSource} from '@angular/cdk/table';
+import {Delivery} from '@flags/interfaces/delivery';
+import {DeliveriesService} from '@flags/services/deliveries.service';
+import {CdkDragDrop} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-detail',
@@ -25,26 +29,38 @@ export class DetailComponent implements OnInit, OnDestroy {
   routeName = 'bob';
   editRoute = false;
   route$: Observable<IRoute>;
+  deliveriesSource: DeliveriesSource;
+
+  displayedColumns = ['handle', 'name', 'remove'];
 
   routeNameChange = _debounce(evt => this.routeSvc.update(this.route_key, {name: evt}), 500);
 
-  constructor(private route: ActivatedRoute, private houseSvc: HouseService,
+  constructor(private route: ActivatedRoute, private houseSvc: HouseService, private deliveriesSvc: DeliveriesService,
               private routeSvc: RouteService, private router: Router) {
   }
 
   ngOnInit() {
-    this.route$ = this.route.paramMap.pipe(
-      map((params: ParamMap) => {
+    this.route$ = combineLatest([this.route.paramMap, this.routeSvc.routes$]).pipe(
+      map(([params, routes]: [ParamMap, IRoute[]]) => {
         if (params.has('id')) {
           this.route_key = params.get('id') as string;
-          // this.houses = this.houseSvc.housesByRoute(this.route_key);
-          // return this.houseSvc.getRoute(this.route_key);
-          // null as unknown as IRoute;
-        } else {
-          // return of(null as unknown as IRoute);
+          const route = routes.find(route => route.id === this.route_key);
+          if (route) {
+            return route;
+          }
         }
         return {} as IRoute;
       }));
+
+    const deliveries$ = this.route$.pipe(
+      filter(route => Boolean(route.id)),
+      tap(x => console.log(x)),
+      switchMap(route => this.deliveriesSvc.getRouteDeliveries(this.routeSvc.getRouteRef(route.id))),
+      this.deliveriesSvc.withHouses(this.houseSvc),
+      tap(x => console.log(x)),
+      share(),
+    );
+    this.deliveriesSource = new DeliveriesSource(deliveries$);
 
     this.unassigned = this.houseSvc.unassignedHouses$;
 
@@ -60,7 +76,15 @@ export class DetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.active = false;
-    // this.dragulaSvc.destroy(this.dragulaBag);
+  }
+
+  drop(event: CdkDragDrop<Delivery>) {
+    console.log(event);
+    const {previousIndex, currentIndex, item} = event;
+    if (previousIndex === currentIndex) {
+      return;
+    }
+    this.deliveriesSvc.updateDelivery(item.data.ref, {order: currentIndex});
   }
 
   getIndexLetter(idx: number): string {
@@ -79,6 +103,21 @@ export class DetailComponent implements OnInit, OnDestroy {
   deleteRoute() {
     this.routeSvc.remove(this.route_key)
       .then(() => this.router.navigate(['/routes']));
+  }
+
+}
+
+class DeliveriesSource extends DataSource<Delivery> {
+  constructor(private deliveries$: Observable<Delivery[]>) {
+    super();
+    this.deliveries$ = deliveries$;
+  }
+
+  connect(): Observable<Delivery[] | ReadonlyArray<Delivery>> {
+    return this.deliveries$;
+  }
+
+  disconnect(): void {
   }
 
 }
