@@ -8,6 +8,7 @@ import {DetailComponent} from './detail/detail.component';
 import {FormsModule} from '@angular/forms';
 import {AgmCoreModule} from '@agm/core';
 import {MaterialDesignModule} from '@flags/modules/material-design.module';
+import {AddRouteComponent} from './add-route/add-route.component';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import {MaterialDesignModule} from '@flags/modules/material-design.module';
       ]}
     ])
   ],
-  declarations: [RoutesComponent, DetailComponent],
-  providers: []
+  declarations: [RoutesComponent, DetailComponent, AddRouteComponent],
+  providers: [],
+  entryComponents: [AddRouteComponent],
 })
 export class RoutesModule { }

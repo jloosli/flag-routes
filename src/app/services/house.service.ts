@@ -4,7 +4,8 @@ import {Observable} from 'rxjs';
 import _get from 'lodash-es/get';
 
 import {AngularFirestore, AngularFirestoreCollection, DocumentReference} from '@angular/fire/firestore';
-import {map} from 'rxjs/operators';
+import {map, shareReplay} from 'rxjs/operators';
+import {collSnapshotWithIDs} from '../shared/rxPipes';
 
 @Injectable({
   providedIn: 'root',
@@ -17,10 +18,18 @@ export class HouseService {
   unassignedHouses$: Observable<IHouse[]>;
 
   constructor(private fs: AngularFirestore) {
-    this.housesCollection = this.fs.collection<IHouse>('houses', ref => ref.orderBy('name'));
-    this.houses$ = this.housesCollection.valueChanges({idField: 'id'});
-    this.housesWithRoutes$ = this.houses$;
-    this.unassignedHouses$ = this.houses$;
+    this.housesCollection = this.fs.collection<IHouse>('houses');
+    this.houses$ = this.housesCollection.snapshotChanges().pipe(
+      collSnapshotWithIDs<IHouse>(),
+      map(houses => houses.sort((a, b) => a.name.localeCompare(b.name))),
+      shareReplay({refCount: true, bufferSize: 1}),
+    );
+    this.housesWithRoutes$ = this.houses$.pipe(
+      map(houses => houses.filter(house => Boolean(house.route_ref))),
+    );
+    this.unassignedHouses$ = this.houses$.pipe(
+      map(houses => houses.filter(house => !Boolean(house.route_ref))),
+    );
   }
 
   housesByRoute(route_ref: DocumentReference): Observable<Array<IHouse>> {

@@ -27,7 +27,7 @@ export class HousesComponent implements OnInit {
 
   ngOnInit() {
     this.housesWithRoutes = this.houseSvc.housesWithRoutes$;
-    this.housesSource = new HousesSource(this.housesWithRoutes);
+    this.housesSource = new HousesSource(this.houseSvc.houses$);
   }
 
   editHouse(house: IHouse = {} as IHouse) {

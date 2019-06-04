@@ -12,6 +12,7 @@ import {DataSource} from '@angular/cdk/table';
 import {Delivery} from '@flags/interfaces/delivery';
 import {DeliveriesService} from '@flags/services/deliveries.service';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
+import {DocumentReference} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-detail',
@@ -23,21 +24,23 @@ export class DetailComponent implements OnInit, OnDestroy {
   active = true;
   houses: Observable<Array<IHouse>>;
   route_key: string;
-  unassigned: Observable<Array<IHouse>>;
   zoom = 16;
   iconUrl = `https://mt.google.com/vt/icon?name=icons/spotlight/spotlight-waypoint-b.png&scale=0.9`;
   editRoute = false;
   route$: Observable<IRoute>;
   deliveries$: Observable<Delivery[]>;
   deliveriesSource: DeliveriesSource;
+  housesWithoutRoutes$: Observable<IHouse[]>;
 
   displayedColumns = ['handle', 'name', 'remove'];
+  unassignedColumns = ['name', 'add'];
   routeName: string;
 
   routeNameChange = _debounce(evt => this.routeSvc.update(this.route_key, {name: evt}), 500);
 
   constructor(private route: ActivatedRoute, private houseSvc: HouseService, private deliveriesSvc: DeliveriesService,
               private routeSvc: RouteService, private router: Router) {
+    this.housesWithoutRoutes$ = this.houseSvc.unassignedHouses$;
   }
 
   ngOnInit() {
@@ -62,9 +65,6 @@ export class DetailComponent implements OnInit, OnDestroy {
       shareReplay({bufferSize: 1, refCount: true}),
     );
     this.deliveriesSource = new DeliveriesSource(this.deliveries$);
-
-    this.unassigned = this.houseSvc.unassignedHouses$;
-
   }
 
   ngOnDestroy() {
@@ -100,7 +100,11 @@ export class DetailComponent implements OnInit, OnDestroy {
 
   }
 
-  add(key: string) {
+  add(houseRef: DocumentReference) {
+    this.route$.pipe(
+      take(1),
+    ).subscribe(route => this.deliveriesSvc.addDelivery(route.ref, houseRef));
+
     // this.houseSvc.addHouseToRoute(this.route_key, key);
   }
 

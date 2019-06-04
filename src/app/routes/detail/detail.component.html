@@ -33,7 +33,8 @@
       <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th *matHeaderCellDef mat-header-cell> Name</th>
-        <td *matCellDef="let delivery" mat-cell> {{delivery.house.name}}<br/>{{delivery.house.street}} </td>
+        <td *matCellDef="let delivery; let i=index" mat-cell> {{delivery.house.name}} ({{getIndexLetter(i)}})
+          <br/>{{delivery.house.street}} </td>
       </ng-container>
 
       <!-- Weight Column -->
@@ -46,17 +47,37 @@
         </td>
       </ng-container>
 
-      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
       <tr *matRowDef="let row; columns: displayedColumns;" [cdkDragData]="row" cdkDrag mat-row></tr>
     </table>
   </aside>
-  <agm-map *ngIf="(route$|async) as route" [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom">
-    <agm-marker [latitude]="house.lat" [longitude]="house.lng"
-                *ngFor="let house of (houses | async); let i = index" [label]="getIndexLetter(i)"
+  <agm-map *ngIf="(deliveries$|async) as deliveries" [latitude]="(route$ | async)?.lat"
+           [longitude]="(route$ | async)?.lng" [zoom]="zoom">
+    <agm-marker *ngFor="let delivery of deliveries; let i = index" [label]="getIndexLetter(i)"
+                [latitude]="delivery.house.lat" [longitude]="delivery.house.lng"
                 [iconUrl]="iconUrl"
     ></agm-marker>
   </agm-map>
-  <aside class="unused-houses" *ngIf="(unassigned | async)?.length > 0">
+  <aside *ngIf="(housesWithoutRoutes$ | async)?.length > 0" class="unused-houses">
     <h3>Unassigned Houses</h3>
+    <table [dataSource]="housesWithoutRoutes$" mat-table>
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell> Name</th>
+        <td *matCellDef="let house" mat-cell> {{house.name}}<br/>{{house.street}} </td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="add">
+        <th *matHeaderCellDef mat-header-cell> Remove?</th>
+        <td *matCellDef="let house" mat-cell>
+          <button (click)="add(house.ref)" mat-icon-button>
+            <mat-icon>add</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr *matRowDef="let row; columns: unassignedColumns;" mat-row></tr>
+    </table>
+
   </aside>
 </div>

@@ -4,7 +4,7 @@ import {AngularFirestore, AngularFirestoreCollection, DocumentReference} from '@
 import {IRoute} from '@flags/interfaces/route';
 import {DeliveriesService} from '@flags/services/deliveries.service';
 import {combineLatest} from 'rxjs/internal/observable/combineLatest';
-import {map, switchMap} from 'rxjs/operators';
+import {map, shareReplay, switchMap, take} from 'rxjs/operators';
 import {zip} from 'rxjs/internal/observable/zip';
 import {of} from 'rxjs/internal/observable/of';
 import {HouseService} from '@flags/services/house.service';
@@ -27,6 +27,7 @@ export class RouteService {
     this.routesCollection = af.collection<IRoute>('routes', ref => ref.orderBy('order'));
     this.routes$ = this.routesCollection.snapshotChanges().pipe(
       collSnapshotWithIDs<IRoute>(),
+      shareReplay({bufferSize: 1, refCount: true}),
     );
     this.routesWithHouses$ = combineLatest([this.routes$, this.housesSvc.houses$]).pipe(
       switchMap(([routes, houses]) => {
@@ -50,11 +51,17 @@ export class RouteService {
   }
 
   add(name: string) {
-    const routeToSave: IRoute = {
-      name: name,
-      house_count: 0,
-    };
-    return this.routesCollection.add(routeToSave);
+
+    return this.routes$.pipe(take(1)).toPromise()
+      .then(routes => routes.length + 1)
+      .then(order => {
+        const routeToSave: IRoute = {
+          name: name,
+          house_count: 0,
+          order: order,
+        };
+        return this.routesCollection.add(routeToSave);
+      });
   }
 
   update(route_id: string, updates: Partial<IRoute>) {
