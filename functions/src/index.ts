@@ -93,18 +93,13 @@ const addDeliveryToRoute = deliveryDocumentReference
     ]);
   });
 
-const reorderDeliveries = async (routeRef: DocumentReference, startingOrder: number, ignoreDelivery?: DocumentReference) => {
+const reorderDeliveries = async (routeRef: DocumentReference, startingOrder: number) => {
   let order = startingOrder;
   console.log('Reorder from ', order);
-  const deliveriesSnap = await routeRef.collection('deliveries').where('order', '>=', order).get();
-  if (ignoreDelivery) {
-    order++;
-  }
+  const deliveriesSnap = await routeRef.collection('deliveries')
+    .orderBy('order').where('order', '>=', order).get();
   const deliveryUpdates: Promise<any>[] = [];
   deliveriesSnap.forEach((deliverySnap: QueryDocumentSnapshot) => {
-    if (ignoreDelivery && ignoreDelivery === deliverySnap.ref) {
-      return;
-    }
     deliveryUpdates.push(deliverySnap.ref.set({order: order++}, {merge: true}));
   });
   return Promise.all(deliveryUpdates);
@@ -117,6 +112,7 @@ const removeDeliveryFromRoute = deliveryDocumentReference
     const houseReference = fs.collection('houses').doc(deliveryId);
     const routeRef = fs.collection('routes').doc(routeId);
     const {order = null} = deliverySnap.data() || {};
+
     return routeRef.update({
       house_count: FieldValue.increment(-1),
     }).then(() => houseReference.update({
