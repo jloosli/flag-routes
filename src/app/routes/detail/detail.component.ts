@@ -1,4 +1,4 @@
-import {filter, map, share, switchMap, tap} from 'rxjs/operators';
+import {filter, map, shareReplay, switchMap, take} from 'rxjs/operators';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
@@ -29,6 +29,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   routeName = 'bob';
   editRoute = false;
   route$: Observable<IRoute>;
+  deliveries$: Observable<Delivery[]>;
   deliveriesSource: DeliveriesSource;
 
   displayedColumns = ['handle', 'name', 'remove'];
@@ -41,37 +42,28 @@ export class DetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.route$ = combineLatest([this.route.paramMap, this.routeSvc.routes$]).pipe(
+      filter(([params]) => params.has('id')),
       map(([params, routes]: [ParamMap, IRoute[]]) => {
-        if (params.has('id')) {
-          this.route_key = params.get('id') as string;
-          const route = routes.find(route => route.id === this.route_key);
-          if (route) {
-            return route;
-          }
+        this.route_key = params.get('id') as string;
+        const route = routes.find(route => route.id === this.route_key);
+        if (!route) {
+          throw new Error('Route not found');
         }
-        return {} as IRoute;
-      }));
-
-    const deliveries$ = this.route$.pipe(
-      filter(route => Boolean(route.id)),
-      tap(x => console.log(x)),
-      switchMap(route => this.deliveriesSvc.getRouteDeliveries(this.routeSvc.getRouteRef(route.id))),
-      this.deliveriesSvc.withHouses(this.houseSvc),
-      tap(x => console.log(x)),
-      share(),
+        return route;
+      }),
+      shareReplay({bufferSize: 1, refCount: true}),
     );
-    this.deliveriesSource = new DeliveriesSource(deliveries$);
+
+    this.deliveries$ = this.route$.pipe(
+      filter(route => Boolean(route && route.ref)),
+      // @ts-ignore TS doesn't believe route.ref has to be defined at this point
+      switchMap((route: IRoute) => this.deliveriesSvc.getRouteDeliveries(route.ref, {withHouses: true})),
+      shareReplay({bufferSize: 1, refCount: true}),
+    );
+    this.deliveriesSource = new DeliveriesSource(this.deliveries$);
 
     this.unassigned = this.houseSvc.unassignedHouses$;
 
-    // this.dragulaSvc.dropModel.subscribe(args => {
-    //   let [bag, el, target, source] = args;
-    //   this.houseSvc.saveRouteHouses(this.route_key, this.route.houses);
-    //   // this.cdr.markForCheck();
-    // });
-    // this.dragulaSvc.setOptions(this.dragulaBag, {
-    //   moves: (el, source, handle, sibling) => handle.tagName === 'mat-ICON',
-    // });
   }
 
   ngOnDestroy() {
@@ -84,7 +76,15 @@ export class DetailComponent implements OnInit, OnDestroy {
     if (previousIndex === currentIndex) {
       return;
     }
-    this.deliveriesSvc.updateDelivery(item.data.ref, {order: currentIndex});
+    this.route$.pipe(take(1))
+      .subscribe(route => this.deliveriesSvc.reorderDeliveries(route.ref, previousIndex, currentIndex));
+    // this.deliveries$.pipe(take(1)).subscribe(deliveries=>{
+    //   deliveries.map(delivery=>{
+    //     if(delivery.order === previ)
+    //   })
+    // });
+    // this.deliveriesSvc.updateDelivery();
+
   }
 
   getIndexLetter(idx: number): string {

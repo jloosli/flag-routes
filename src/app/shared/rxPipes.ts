@@ -1,6 +1,6 @@
 import {pipe} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {Action, DocumentChangeAction, DocumentSnapshot} from '@angular/fire/firestore';
+import {Action, DocumentChangeAction, DocumentReference, DocumentSnapshot} from '@angular/fire/firestore';
 
 // @todo: Convert this to handle either DocumentSnapshot or DocumentChangeAction
 // const dataWithID = <T>(a) => {
@@ -26,11 +26,10 @@ const docSnapshotWithID = <T = any>() => pipe(
 const collSnapshotWithIDs = <T = any>() => pipe(
   map((actions: DocumentChangeAction<T>[]) => {
     return actions.map(a => {
-      const data = a.payload.doc.data();
+      const data = a.payload.doc.data() as T;
       const id = a.payload.doc.id;
       const ref = a.payload.doc.ref;
-      // @ts-ignore TS2698: Spread types may only be created from object types.
-      return {id, ref, ...data} as T;
+      return {id, ref, ...data} as T & { id: string, ref: DocumentReference };
     });
   }),
 );

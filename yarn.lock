@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@agm/core@^1.0.0-beta.5":
-  version "1.0.0-beta.5"
-  resolved "https://registry.yarnpkg.com/@agm/core/-/core-1.0.0-beta.5.tgz#6dbceb666b2dbc4a868b97e1340a3faceb5f2113"
-  integrity sha512-LVENJqtBZEWpX+uJkGI0zgg+Xkm2KkktQm4ojZozArbeNvQkVL6pqVc04Mme6vvOzwJpD1cET5w4byC8Xaq1QQ==
+"@agm/core@^1.0.0-beta.6":
+  version "1.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/@agm/core/-/core-1.0.0-beta.6.tgz#89a812b4b4ceb4d9cf2195400423c4b833103c5e"
+  integrity sha512-Bf6azUVIZYwgUWUNISaENh38D17XJxgKU7m1TNTrP+sIgYjPrjEON8mxoGnYI8B7PBbdaWl6RPV/FcrEfSG9Ng==
 
 "@angular-devkit/architect@0.800.1":
   version "0.800.1"
@@ -186,10 +186,10 @@
   dependencies:
     tslib "^1.9.0"
 
-"@angular/fire@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@angular/fire/-/fire-5.2.0.tgz#3b261a6518de23aabd55ce0eebb04b110977cc69"
-  integrity sha512-MKu4WXD4Nly9tx8TQgIqj+HJuj+9RHhkzw2Oo5Pzx2ZLETAu9YQbyWwtExv4ZEOw46Q8/EchLEWo1dGkEbTCZQ==
+"@angular/fire@^5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@angular/fire/-/fire-5.2.1.tgz#4b966aaed10cda0b430c9d80769b39d08032004d"
+  integrity sha512-pS4zWhLLANzMbYVIKNtebDQKhm9+KANUDvDV6DwKP24XHzkZdvazKe1HC6uXWlf7QmDxSPFleCSBkn0tnQQzdQ==
 
 "@angular/forms@^8.0.0":
   version "8.0.0"

@@ -8,6 +8,7 @@ import {map, switchMap} from 'rxjs/operators';
 import {zip} from 'rxjs/internal/observable/zip';
 import {of} from 'rxjs/internal/observable/of';
 import {HouseService} from '@flags/services/house.service';
+import {collSnapshotWithIDs} from '../shared/rxPipes';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,9 @@ export class RouteService {
     private housesSvc: HouseService,
   ) {
     this.routesCollection = af.collection<IRoute>('routes', ref => ref.orderBy('order'));
-    this.routes$ = this.routesCollection.valueChanges({idField: 'id'});
+    this.routes$ = this.routesCollection.snapshotChanges().pipe(
+      collSnapshotWithIDs<IRoute>(),
+    );
     this.routesWithHouses$ = combineLatest([this.routes$, this.housesSvc.houses$]).pipe(
       switchMap(([routes, houses]) => {
         return zip(
