@@ -22,9 +22,9 @@
           House
         </th>
         <td *matCellDef="let delivery;let i=index" mat-cell>
-          {{delivery.house.name}} ({{getIndexLetter(i)}})<br/>
+          <strong>{{delivery.house.name}} ({{getIndexLetter(i)}})</strong><br/>
           {{delivery.house.street}}
-          <span *ngIf="delivery.house.notes"><br/><strong>{{delivery.house.notes}}</strong></span>
+          <span *ngIf="delivery.house.notes"><br/><em>{{delivery.house.notes}}</em></span>
         </td>
       </ng-container>
 

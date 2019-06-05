@@ -40,23 +40,28 @@ export class ImportExportComponent implements OnInit {
 
   exportData() {
     this.inOutSvc.exportData()
-      .then(dataURL => {
-        console.log(dataURL);
-        const downloadLink = document.createElement('a');
-        downloadLink.href = dataURL;
+      .subscribe(csvData => {
+        const csvMimeInfo = 'text/csv;charset=utf-8';
+        const blob = new Blob([csvData], {type: csvMimeInfo});
+        console.log(csvData);
         const current = new Date();
         const y = current.getFullYear();
         const m = current.getMonth();
         const d = current.getDate();
         const h = current.getHours();
         const min = current.getMinutes();
-        downloadLink.download = `flag_route_export_${y}_${m}_${d}_${h}_${min}.csv`;
-        downloadLink.style.visibility = 'hidden';
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      })
-      .catch(e => console.error(e));
+        const filename = `flag_route_export_${y}_${m}_${d}_${h}_${min}.csv`;
+        const downloadLink = document.createElement('a');
+        if (downloadLink.download !== undefined) {
+          const downloadUrl = URL.createObjectURL(blob);
+          downloadLink.setAttribute('href', downloadUrl);
+          downloadLink.setAttribute('download', filename);
+          downloadLink.style.visibility = 'hidden';
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+        }
+      });
   }
 
 }

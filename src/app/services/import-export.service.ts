@@ -4,9 +4,10 @@ import {HouseService} from './house.service';
 import {IHouse} from '@flags/interfaces/house';
 import {RouteService} from './route.service';
 import {combineLatest} from 'rxjs/internal/observable/combineLatest';
-import {take} from 'rxjs/operators';
+import {map, take} from 'rxjs/operators';
 import {DocumentReference} from '@angular/fire/firestore';
 import {DeliveriesService} from '@flags/services/deliveries.service';
+import {Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -23,11 +24,10 @@ export class ImportExportService {
   constructor(private houseSvc: HouseService, private routeSvc: RouteService, private deliveriesSvc: DeliveriesService) {
   }
 
-  exportData(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      combineLatest([this.routeSvc.routesWithHouses$, this.houseSvc.houses$]).pipe(
-        take(1),
-      ).subscribe(([routes, houses]) => {
+  exportData(): Observable<string> {
+    return combineLatest([this.routeSvc.routesWithHouses$, this.houseSvc.houses$]).pipe(
+      take(1),
+      map(([routes, houses]) => {
         const routesToReturn: any[] = [];
         routes.map(route => {
           if (route.houses) {
@@ -46,10 +46,9 @@ export class ImportExportService {
           route: '',
         }));
         const flattened = this.flattenData(routesToReturn);
-        const stringified = this.stringify(flattened);
-        resolve(stringified);
-      });
-    });
+        return this.stringify(flattened);
+      }),
+    );
   }
 
   private flattenData(data: any[]) {
