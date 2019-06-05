@@ -17,6 +17,9 @@
       "@flags/modules/*": [
         "src/app/modules/*"
       ],
+      "@flags/shared/*": [
+        "src/app/shared/*"
+      ],
       "@flags/services/*": [
         "src/app/services/*"
       ]

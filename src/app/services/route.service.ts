@@ -1,14 +1,11 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {combineLatest, Observable, of, zip} from 'rxjs';
 import {AngularFirestore, AngularFirestoreCollection, DocumentReference} from '@angular/fire/firestore';
 import {IRoute} from '@flags/interfaces/route';
 import {DeliveriesService} from '@flags/services/deliveries.service';
-import {combineLatest} from 'rxjs/internal/observable/combineLatest';
-import {map, shareReplay, switchMap, take} from 'rxjs/operators';
-import {zip} from 'rxjs/internal/observable/zip';
-import {of} from 'rxjs/internal/observable/of';
+import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {HouseService} from '@flags/services/house.service';
-import {collSnapshotWithIDs} from '../shared/rxPipes';
+import {collSnapshotWithIDs} from '@flags/shared/rxPipes';
 
 @Injectable({
   providedIn: 'root',
@@ -46,22 +43,18 @@ export class RouteService {
     );
   }
 
-  clearRoutes() {
-    return this.routesCollection.get().subscribe(routeSnap => routeSnap.forEach(result => result.ref.delete()));
-  }
 
-  add(name: string) {
-
-    return this.routes$.pipe(take(1)).toPromise()
-      .then(routes => routes.length + 1)
-      .then(order => {
-        const routeToSave: IRoute = {
-          name: name,
-          house_count: 0,
-          order: order,
-        };
-        return this.routesCollection.add(routeToSave);
-      });
+  async add(name: string, order?: number) {
+    if (order === null) {
+      const routesSnap = await this.routesCollection.get().toPromise();
+      order = routesSnap.size;
+    }
+    const routeToSave: IRoute = {
+      name: name,
+      house_count: 0,
+      order: order,
+    };
+    return this.routesCollection.add(routeToSave);
   }
 
   update(route_id: string, updates: Partial<IRoute>) {
@@ -72,6 +65,17 @@ export class RouteService {
     const ref = this.getRouteRef(route_ref);
     return Promise.all([ref.delete(), this.deliveriesSvc.removeAllRouteDeliveries(ref)]);
   }
+
+  async clearAllRoutes() {
+    const routesSnap = await this.routesCollection.get().toPromise();
+    const deletionPromises: Promise<any>[] = [];
+    routesSnap.forEach(routeSnap => {
+      deletionPromises.push(this.deliveriesSvc.removeAllRouteDeliveries(routeSnap.ref));
+      deletionPromises.push(routeSnap.ref.delete());
+    });
+    return Promise.all(deletionPromises);
+  }
+
 
   getRouteRef(route_ref: string | DocumentReference): DocumentReference {
     if (typeof route_ref === 'string') {

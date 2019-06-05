@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ImportExportService} from '../services/import-export.service';
+import {MatSnackBar} from '@angular/material';
 
 @Component({
   selector: 'app-import-export',
@@ -9,10 +10,9 @@ import {ImportExportService} from '../services/import-export.service';
 export class ImportExportComponent implements OnInit {
   public fileSelected = false;
   private fileToUpload: File;
-  public message = '';
-  public error = false;
+  importing = false;
 
-  constructor(private inOutSvc: ImportExportService) {
+  constructor(private inOutSvc: ImportExportService, private snackBar: MatSnackBar) {
   }
 
   ngOnInit() {
@@ -26,16 +26,14 @@ export class ImportExportComponent implements OnInit {
   }
 
   readFile() {
-    this.message = '';
-    this.error = false;
+    this.importing = true;
     this.inOutSvc.importFile(this.fileToUpload)
-      .then(result => {
-        this.message = 'Routes and houses imported successfully.';
+      .then(({routeCount, houseCount}) => {
+        this.snackBar.open(`${routeCount} Routes and ${houseCount} Houses imported successfully.`, undefined, {duration: 3000});
       })
       .catch(msg => {
-        this.message = msg;
-        this.error = true;
-      });
+        this.snackBar.open(msg, undefined, {duration: 3000});
+      }).finally(() => this.importing = false);
   }
 
   exportData() {

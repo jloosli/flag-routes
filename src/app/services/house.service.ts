@@ -55,4 +55,11 @@ export class HouseService {
   removeHouse(id: string) {
     return this.housesCollection.doc(id).delete();
   }
+
+  async clearAllHouses() {
+    const housesSnap = await this.housesCollection.get().toPromise();
+    const deletionPromises: Promise<any>[] = [];
+    housesSnap.forEach(houseSnap => deletionPromises.push(houseSnap.ref.delete()));
+    return Promise.all(deletionPromises);
+  }
 }

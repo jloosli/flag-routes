@@ -4,18 +4,21 @@
   <button type="button" mat-raised-button color="accent" (click)="exportData()">Download Data/Template</button>
 </mat-card>
 
+<input #fileInput (change)="fileChange($event)" hidden name="uploadFile" type="file"/>
+
 <mat-card>
   <mat-card-title>Upload</mat-card-title>
-  <form class="upload" (submit)="readFile()" #uploadForm="ngForm">
-    <input type="file" (change)="fileChange($event)" name="uploadFile"/>
-    <button class="upload-button" mat-raised-button color="warn" *ngIf="fileSelected">Upload Data (WARNING: overwrites existing data)</button>
-  </form>
-  <div *ngIf="message" class="callout" [class.is-important]="error">
-    <header *ngIf="error">Error</header>
-    <header *ngIf="!error">Success!</header>
-    <p>
-      {{message}}
-    </p>
-  </div>
+  <mat-card-content>
+    <button (click)="fileInput.click()" mat-stroked-button>Select File</button>
+    {{fileToUpload?.name}}
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button (click)="readFile()" *ngIf="fileSelected" [disabled]="importing" class="upload-button" color="warn"
+            mat-stroked-button
+            type="button">
+      <span *ngIf="!importing">Upload (WARNING: overwrites existing data)</span>
+      <span *ngIf="importing">Importing...</span>
+    </button>
+  </mat-card-actions>
 </mat-card>
 
