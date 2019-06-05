@@ -41,8 +41,7 @@ export class ImportExportComponent implements OnInit {
   exportData() {
     this.inOutSvc.exportData()
       .subscribe(csvData => {
-        const csvMimeInfo = 'text/csv;charset=utf-8';
-        const blob = new Blob([csvData], {type: csvMimeInfo});
+        const blob = new Blob([csvData], {type: ImportExportService.CSV_MIME});
         console.log(csvData);
         const current = new Date();
         const y = current.getFullYear();

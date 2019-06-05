@@ -15,11 +15,7 @@ import {Observable} from 'rxjs';
 export class ImportExportService {
 
   private static FIELDS: Array<string> = ['Name', 'Street', 'Notes', 'Route'];
-
-  static getDatastring(data: string): string {
-    const csvContent = 'data:text/csv;charset=utf-8,' + data;
-    return encodeURI(csvContent);
-  }
+  public static CSV_MIME = 'data:text/csv;charset=utf-8';
 
   constructor(private houseSvc: HouseService, private routeSvc: RouteService, private deliveriesSvc: DeliveriesService) {
   }
