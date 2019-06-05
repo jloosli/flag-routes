@@ -12,6 +12,7 @@
                                 [longitude]="house?.lng"
                                 *ngFor="let house of route.houses; "
                                 [iconUrl]="iconUrl(route, house.id)"></agm-marker>
+        <app-driver-tokens></app-driver-tokens>
       </agm-map>
     </mat-card-content>
   </mat-card>

@@ -1,0 +1,3 @@
+<agm-marker *ngFor="let driver of drivers$ | async " [label]="driver.name" [latitude]="driver.lat"
+            [longitude]="driver.lng"
+></agm-marker>

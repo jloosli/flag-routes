@@ -103,7 +103,8 @@ export class DetailComponent implements OnInit, OnDestroy {
   add(houseRef: DocumentReference) {
     this.route$.pipe(
       take(1),
-    ).subscribe(route => this.deliveriesSvc.addDelivery(route.ref, houseRef));
+      //@ts-ignore
+    ).subscribe(route => this.deliveriesSvc.addDelivery(route!.ref, houseRef));
 
     // this.houseSvc.addHouseToRoute(this.route_key, key);
   }

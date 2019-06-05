@@ -1,31 +1,47 @@
-<h2>Delivery: {{currentRoute?.name}}</h2>
+<h2>Delivery: {{(route$ | async)?.name}}</h2>
 <div class="results">
   <aside>
     <h3>Houses</h3>
-    <table mat-table [dataSource]="routeSource">
+    <table [dataSource]="deliveriesSource" mat-table>
+
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox></mat-checkbox>
+          <mat-checkbox (change)="$event ? masterToggle($event):null"
+                        [checked]="allChecked$ | async"
+                        [indeterminate]="someChecked$ | async"
+          ></mat-checkbox>
         </th>
-        <td mat-cell *matCellDef="let house">
-          <mat-checkbox></mat-checkbox>
+        <td *matCellDef="let delivery" mat-cell>
+          <mat-checkbox (change)="toggleDelivery($event, delivery.ref)"
+                        [checked]="delivery.delivered"></mat-checkbox>
         </td>
       </ng-container>
-      <mat-text-column name="name"></mat-text-column>
-      <mat-text-column name="street"></mat-text-column>
-    </table>
-  </aside>
-  <div class="map">
 
-    <agm-map *ngIf="currentRoute" [latitude]="currentRoute.lat" [longitude]="currentRoute.lng" [zoom]="zoom">
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell>
+          House
+        </th>
+        <td *matCellDef="let delivery;let i=index" mat-cell>
+          {{delivery.house.name}} ({{getIndexLetter(i)}})<br/>
+          {{delivery.house.street}}
+          <span *ngIf="delivery.house.notes"><br/><strong>{{delivery.house.notes}}</strong></span>
+        </td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let delivery; columns: displayedColumns;" mat-row></tr>
+    </table>
+
+
+  </aside>
+  <div *ngIf="route$ | async" class="map">
+
+    <agm-map [latitude]="(route$ | async).lat" [longitude]="(route$ | async).lng" [zoom]="zoom">
       <agm-marker [latitude]="delivery.house.lat" [longitude]="delivery.house.lng"
                   *ngFor="let delivery of deliveries$ | async; let i = index" [label]="getIndexLetter(i)"
-                  [iconUrl]="iconUrl(delivery.id) | async"
+                  [iconUrl]="iconUrl(delivery)"
       ></agm-marker>
-      <agm-marker [latitude]="driver.lat" [longitude]="driver.lng"
-                              *ngFor="let driver of drivers$ | async; let i=index"
-                              [title]="driver.name" [label]="firstInitial(driver.name)"
-                              [iconUrl]="driverIconUrl(i)"></agm-marker>
+      <app-driver-tokens></app-driver-tokens>
     </agm-map>
   </div>
 </div>

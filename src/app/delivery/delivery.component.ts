@@ -1,4 +1,4 @@
-import {map, share, switchMap} from 'rxjs/operators';
+import {filter, map, shareReplay, switchMap, take} from 'rxjs/operators';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {HouseService} from '@flags/services/house.service';
 import {ActivatedRoute} from '@angular/router';
@@ -11,8 +11,8 @@ import {Delivery} from '@flags/interfaces/delivery';
 import {CollectionViewer} from '@angular/cdk/collections';
 import {DeliveriesService} from '@flags/services/deliveries.service';
 import {IRoute} from '@flags/interfaces/route';
-import {DriversService} from '@flags/services/drivers.service';
-import {IDriver} from '@flags/interfaces/driver';
+import {DocumentReference} from '@angular/fire/firestore';
+import {MatCheckboxChange} from '@angular/material';
 
 @Component({
   selector: 'app-delivery',
@@ -26,49 +26,63 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   deliveryForm: FormGroup;
   routeID: string | null;
   zoom = 16;
-  driver_icon_colors = ['purple', 'blue', 'yellow', 'green', 'red', 'orange'];
-  routeSource: DeliveriesDataSource;
-  currentRoute: IRoute | undefined;
+  deliveriesSource: DeliveriesDataSource;
   deliveries$: Observable<Delivery[]>;
-  drivers$: Observable<IDriver[]>;
+  displayedColumns = ['select', 'name'];
+  private route$: Observable<IRoute>;
+  private allChecked$: Observable<boolean>;
+  private someChecked$: Observable<boolean>;
 
   constructor(private houseSvc: HouseService, private route: ActivatedRoute, private routeSvc: RouteService,
-              private deliveriesSvc: DeliveriesService, private driversService: DriversService) {
+              private deliveriesSvc: DeliveriesService) {
   }
 
   ngOnInit() {
-    this.drivers$ = this.driversService.drivers$;
     this.deliveryForm = new FormGroup({});
-    this.deliveries$ = combineLatest([this.route.paramMap, this.routeSvc.routes$]).pipe(
-      switchMap(([routeParams, routes]) => {
+    this.route$ = combineLatest([this.route.paramMap, this.routeSvc.routes$]).pipe(
+      filter(([routeParams]) => routeParams.has('id')),
+      map(([routeParams, routes]) => {
         this.routeID = routeParams.get('id');
-        if (this.routeID) {
-          this.currentRoute = routes.find(route => route.id === this.routeID);
-        }
-        return this.deliveriesSvc.getRouteDeliveries(this.routeSvc.getRouteRef(this.routeID as string));
+        return routes.find(route => route.id === this.routeID) as IRoute;
       }),
-      share(),
     );
-    this.routeSource = new DeliveriesDataSource(this.deliveries$);
-
+    this.deliveries$ = this.route$.pipe(
+      // @ts-ignore
+      switchMap((route) => {
+        // @ts-ignore
+        return this.deliveriesSvc.getRouteDeliveries(route!.ref, {withHouses: true});
+      }),
+      shareReplay({refCount: true, bufferSize: 1}),
+    );
+    this.deliveriesSource = new DeliveriesDataSource(this.deliveries$);
+    this.allChecked$ = this.deliveries$.pipe(
+      map(deliveries => deliveries.every(delivery => delivery.delivered)),
+    );
+    this.someChecked$ = combineLatest([this.allChecked$, this.deliveries$]).pipe(
+      map(([all, deliveries]) => !all && deliveries.some(delivery => delivery.delivered)),
+    );
   }
 
   ngOnDestroy() {
     this.active = false;
   }
 
+  masterToggle(event: MatCheckboxChange) {
+    this.route$.pipe(take(1)).subscribe(route => this.deliveriesSvc.toggleAll(route.ref, event.checked));
+  }
+
+
+  toggleDelivery(event: MatCheckboxChange, deliveryRef: DocumentReference) {
+    this.deliveriesSvc.updateDelivery(deliveryRef, {delivered: event.checked});
+  }
+
   getIndexLetter(idx: number): string {
     return String.fromCharCode(65 + idx);
   }
 
-  async iconUrl(delivery_id: string): Promise<string> {
-    const color = await this.delivered(delivery_id) ? 'a' : 'b'; // a = green b= red
+  iconUrl(delivery: Delivery): string {
+    const color = delivery.delivered ? 'a' : 'b'; // a = green b= red
     return `https://mt.google.com/vt/icon?name=icons/spotlight/spotlight-waypoint-${color}.png&scale=0.9`;
-  }
-
-  driverIconUrl(idx: number): string {
-    const color_idx = idx % this.driver_icon_colors.length;
-    return `https://maps.google.com/intl/en_us/mapfiles/ms/micons/${this.driver_icon_colors[color_idx]}.png`;
   }
 
   delivered(delivery_id: string): Promise<boolean> {
@@ -78,10 +92,6 @@ export class DeliveryComponent implements OnInit, OnDestroy {
         return Boolean(theDelivery && theDelivery.delivered);
       }),
     ).toPromise();
-  }
-
-  firstInitial(name: string): string {
-    return name.split('')[0] || '';
   }
 
   toggleChecks(state: boolean) {

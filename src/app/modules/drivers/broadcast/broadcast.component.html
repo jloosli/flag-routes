@@ -1,0 +1,6 @@
+<span *ngIf="locationForm" [formGroup]="locationForm" class="location-broadcast">
+      <mat-checkbox formControlName="broadcast" labelPosition="before">Broadcast Location? </mat-checkbox>
+      <mat-form-field>
+         <input formControlName="name" matInput placeholder="Name"/>
+      </mat-form-field>
+   </span>

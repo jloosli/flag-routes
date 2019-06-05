@@ -7,14 +7,15 @@ import {LayoutModule} from '../layout/layout.module';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MaterialDesignModule} from '@flags/modules/material-design.module';
 import {AgmCoreModule} from '@agm/core';
+import {DriversModule} from '@flags/modules/drivers/drivers.module';
 
 @NgModule({
   imports: [
     CommonModule,
     LayoutModule,
     ReactiveFormsModule,
-    MaterialDesignModule,
     AgmCoreModule,
+    MaterialDesignModule,
     RouterModule.forChild([
       {
         path: '', component: LayoutComponent, children: [
@@ -22,6 +23,7 @@ import {AgmCoreModule} from '@agm/core';
         ],
       },
     ]),
+    DriversModule,
   ],
   declarations: [DeliveryComponent],
   providers: [],

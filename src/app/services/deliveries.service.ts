@@ -41,6 +41,12 @@ export class DeliveriesService {
     return this.fs.doc(deliveryRef).set(updates, {merge: true});
   }
 
+  async toggleAll(routeRef: DocumentReference, deliveryChange: boolean) {
+    const deliveriesSnap = await this.fs.doc(routeRef)
+      .collection('deliveries', ref => ref.where('delivered', '==', !deliveryChange)).get().toPromise();
+    deliveriesSnap.forEach(deliverySnap => deliverySnap.ref.update({delivered: deliveryChange}));
+  }
+
   getRouteDeliveries(routeRef: DocumentReference, options?: { withHouses: boolean }): Observable<Delivery[]> {
     const withHouses = options && options.withHouses;
     const deliveriesObs = this.fs.doc(routeRef).collection<Delivery>('deliveries', ref => ref.orderBy('order'))
