@@ -16,7 +16,6 @@ export class DriverTokensComponent implements OnInit {
 
   ngOnInit() {
     this.drivers$ = this.driversSvc.drivers$;
-    this.drivers$.subscribe(x => console.log(x));
   }
 
 }

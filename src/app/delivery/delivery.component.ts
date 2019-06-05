@@ -68,7 +68,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   }
 
   masterToggle(event: MatCheckboxChange) {
-    this.route$.pipe(take(1)).subscribe(route => this.deliveriesSvc.toggleAll(route.ref, event.checked));
+    this.route$.pipe(take(1)).subscribe(route => route && route.ref && this.deliveriesSvc.toggleAll(route.ref, event.checked));
   }
 
 

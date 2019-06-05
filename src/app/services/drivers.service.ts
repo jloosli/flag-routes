@@ -4,7 +4,7 @@ import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firest
 import {BehaviorSubject, Observable} from 'rxjs';
 import * as firebase from 'firebase/app';
 import _throttle from 'lodash-es/throttle';
-import {distinctUntilChanged, filter, switchMap, tap} from 'rxjs/operators';
+import {distinctUntilChanged, filter, shareReplay, switchMap, tap} from 'rxjs/operators';
 import {IDriver} from '@flags/interfaces/driver';
 
 @Injectable({
@@ -47,6 +47,7 @@ export class DriversService {
           this.af.collection('drivers').doc(driver.id).delete();
         }
       })),
+      shareReplay({bufferSize: 1, refCount: true}),
     );
     this.setDriverID();
     this.driver$ = this._driverID.pipe(
