@@ -6,6 +6,7 @@ import {DeliveriesService} from '@flags/services/deliveries.service';
 import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {HouseService} from '@flags/services/house.service';
 import {collSnapshotWithIDs} from '@flags/shared/rxPipes';
+import {Delivery} from '@flags/interfaces/delivery';
 
 @Injectable({
   providedIn: 'root',
@@ -30,14 +31,19 @@ export class RouteService {
       switchMap(([routes, houses]) => {
         return zip(
           of(routes),
-          zip(...routes.map((route: IRoute) => this.deliveriesSvc.getRouteDeliveries(this.getRouteRef(route.id as string)))),
+          zip(...routes.map((route: IRoute) => this.deliveriesSvc.getRouteDeliveries(this.getRouteRef(route.ref as DocumentReference)))),
           of(houses),
         );
       }),
       map(([routes, deliveries, houses]) => {
         return routes.map((route, idx) => {
           const routeDeliveries = deliveries[idx];
-          return {...route, houses: routeDeliveries.map(delivery => houses.find(house => house.id === delivery.id))};
+          const delivered_count = deliveries[idx].reduce((prev: number, curr: Delivery) => prev + (curr.delivered ? 1 : 0), 0);
+          return {
+            ...route,
+            houses: routeDeliveries.map(delivery => houses.find(house => house.id === delivery.id)),
+            delivered_count,
+          };
         }) as IRoute[];
       }),
     );

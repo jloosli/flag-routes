@@ -7,5 +7,6 @@ export interface IRoute extends FSItem {
   lng?: number;
   name: string;
   house_count: number;
+  delivered_count?: number;
   houses?: IHouse[];
 }

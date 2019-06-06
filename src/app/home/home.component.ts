@@ -1,11 +1,12 @@
 import {Component, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {HouseService} from '@flags/services/house.service';
 import {IRoute} from '@flags/interfaces/route';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 import {Router} from '@angular/router';
 import {RouteService} from '@flags/services/route.service';
 import {AgmMap} from '@agm/core';
+import {DeliveriesService} from '@flags/services/deliveries.service';
 
 @Component({
   selector: 'app-home',
@@ -16,10 +17,13 @@ export class HomeComponent implements OnInit {
 
   routesWithHouses$: Observable<Array<IRoute>>;
   zoom = 15;
+  private stats = new Map<string, number>();
+  private statsSub: Subscription;
 
   @ViewChildren(AgmMap) maps: QueryList<AgmMap>;
 
-  constructor(private houseSvc: HouseService, private router: Router, private routesSvc: RouteService) {
+  constructor(private houseSvc: HouseService, private router: Router, private routesSvc: RouteService,
+              private deliveriesSvc: DeliveriesService) {
   }
 
   ngOnInit() {
@@ -27,16 +31,9 @@ export class HomeComponent implements OnInit {
   }
 
   deliveryStats(route: IRoute): string {
-    let delivered = 0;
+
     let total = route.house_count || 0;
-    // if (route.deliveries) {
-    //   for (let key in route.deliveries) {
-    //     if (route.deliveries[key] === true) {
-    //       delivered++;
-    //     }
-    //   }
-    // }
-    // const total = _.get(route, ['houses$'], []).length;
+    const delivered = route.delivered_count;
     return `${delivered} of ${total} Flags Delivered`;
   }
 
