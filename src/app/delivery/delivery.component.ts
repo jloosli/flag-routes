@@ -29,7 +29,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   deliveriesSource: DeliveriesDataSource;
   deliveries$: Observable<Delivery[]>;
   displayedColumns = ['select', 'name'];
-  private route$: Observable<IRoute>;
+  route$: Observable<IRoute>;
   private allChecked$: Observable<boolean>;
   private someChecked$: Observable<boolean>;
 

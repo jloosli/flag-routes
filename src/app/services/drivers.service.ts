@@ -66,10 +66,12 @@ export class DriversService {
   }
 
   async setDriverID(): Promise<void> {
-    let id: string;
+    let id: string | undefined = undefined;
     try {
       id = await localForage.getItem('driver_id') as string;
     } catch (err) {
+    }
+    if (!id) {
       id = this.af.createId();
       await localForage.setItem('driver_id', id);
     }

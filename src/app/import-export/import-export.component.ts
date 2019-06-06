@@ -8,8 +8,8 @@ import {MatSnackBar} from '@angular/material';
   styleUrls: ['./import-export.component.scss'],
 })
 export class ImportExportComponent implements OnInit {
-  public fileSelected = false;
-  private fileToUpload: File;
+  fileSelected = false;
+  fileToUpload: File;
   importing = false;
 
   constructor(private inOutSvc: ImportExportService, private snackBar: MatSnackBar) {
