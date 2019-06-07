@@ -1,4 +1,4 @@
 <agm-marker *ngFor="let delivery of deliveries$ | async; let i = index" [iconUrl]="iconUrl(delivery)"
-            [label]="getIndexLetter(i)" [latitude]="delivery.house.lat"
+            [label]="getIndexLetter(i)" [latitude]="delivery.house.lat" [title]="delivery.house.name"
             [longitude]="delivery.house.lng"
 ></agm-marker>
