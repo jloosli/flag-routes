@@ -33,6 +33,7 @@ const materialModules = [
   declarations: [],
   imports: materialModules,
   exports: materialModules,
+  providers: [],
 })
 export class MaterialDesignModule {
 }

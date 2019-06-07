@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {DriversService} from '@flags/services/drivers.service';
 import {IDriver} from '@flags/interfaces/driver';
 import {Observable} from 'rxjs';
+import {DriversService} from '@flags/services/drivers.service';
 
 @Component({
   selector: 'app-driver-tokens',
