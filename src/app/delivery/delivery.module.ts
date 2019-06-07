@@ -8,6 +8,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MaterialDesignModule} from '@flags/modules/material-design.module';
 import {AgmCoreModule} from '@agm/core';
 import {DriversModule} from '@flags/modules/drivers/drivers.module';
+import {RouteDeliveriesModule} from '@flags/modules/route-deliveries/route-deliveries.module';
 
 @NgModule({
   imports: [
@@ -24,6 +25,7 @@ import {DriversModule} from '@flags/modules/drivers/drivers.module';
       },
     ]),
     DriversModule,
+    RouteDeliveriesModule,
   ],
   declarations: [DeliveryComponent],
   providers: [],

@@ -50,12 +50,9 @@
       <tr *matRowDef="let row; columns: displayedColumns;" [cdkDragData]="row" cdkDrag mat-row></tr>
     </table>
   </aside>
-  <agm-map *ngIf="(deliveries$|async) as deliveries" [latitude]="(route$ | async)?.lat"
-           [longitude]="(route$ | async)?.lng" [zoom]="zoom">
-    <agm-marker *ngFor="let delivery of deliveries; let i = index" [label]="getIndexLetter(i)"
-                [latitude]="delivery.house.lat" [longitude]="delivery.house.lng"
-                [iconUrl]="iconUrl"
-    ></agm-marker>
+  <agm-map *ngIf="(route$ | async) as route" [latitude]="route.lat"
+           [longitude]="route.lng" [zoom]="zoom">
+    <app-route-deliveries [routeRef]="route.ref"></app-route-deliveries>
   </agm-map>
   <aside *ngIf="(housesWithoutRoutes$ | async)?.length > 0" class="unused-houses">
     <h3>Unassigned Houses</h3>

@@ -34,13 +34,10 @@
 
 
   </aside>
-  <div *ngIf="route$ | async" class="map">
+  <div *ngIf="route$ | async as route" class="map">
 
     <agm-map [latitude]="(route$ | async).lat" [longitude]="(route$ | async).lng" [zoom]="zoom">
-      <agm-marker [latitude]="delivery.house.lat" [longitude]="delivery.house.lng"
-                  *ngFor="let delivery of deliveries$ | async; let i = index" [label]="getIndexLetter(i)"
-                  [iconUrl]="iconUrl(delivery)"
-      ></agm-marker>
+      <app-route-deliveries [routeRef]="route.ref"></app-route-deliveries>
       <app-driver-tokens></app-driver-tokens>
     </agm-map>
   </div>

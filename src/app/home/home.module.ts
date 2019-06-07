@@ -6,6 +6,7 @@ import {AgmCoreModule} from '@agm/core';
 import {MaterialDesignModule} from '@flags/modules/material-design.module';
 import {HomeRoutingModule} from './home-routing.module';
 import {DriversModule} from '@flags/modules/drivers/drivers.module';
+import {RouteDeliveriesModule} from '@flags/modules/route-deliveries/route-deliveries.module';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import {DriversModule} from '@flags/modules/drivers/drivers.module';
     AgmCoreModule,
     HomeRoutingModule,
     DriversModule,
+    RouteDeliveriesModule,
   ],
   declarations: [HomeComponent],
   providers: []

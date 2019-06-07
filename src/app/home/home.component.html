@@ -8,10 +8,7 @@
       <agm-map [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom"
                        [mapDraggable]="false" [disableDefaultUI]="true"
                        [zoomControl]="false" [streetViewControl]="false" [scrollwheel]="false">
-        <agm-marker [latitude]="house?.lat"
-                                [longitude]="house?.lng"
-                                *ngFor="let house of route.houses; "
-                                [iconUrl]="iconUrl(route, house.id)"></agm-marker>
+        <app-route-deliveries [routeRef]="route.ref"></app-route-deliveries>
         <app-driver-tokens></app-driver-tokens>
       </agm-map>
     </mat-card-content>

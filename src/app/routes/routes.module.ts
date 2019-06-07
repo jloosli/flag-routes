@@ -9,6 +9,7 @@ import {FormsModule} from '@angular/forms';
 import {AgmCoreModule} from '@agm/core';
 import {MaterialDesignModule} from '@flags/modules/material-design.module';
 import {AddRouteComponent} from './add-route/add-route.component';
+import {RouteDeliveriesModule} from '@flags/modules/route-deliveries/route-deliveries.module';
 
 @NgModule({
   imports: [
@@ -18,11 +19,14 @@ import {AddRouteComponent} from './add-route/add-route.component';
     AgmCoreModule,
     MaterialDesignModule,
     RouterModule.forChild([
-      {path: '', component: LayoutComponent, children: [
-        {path: '', component: RoutesComponent},
-        {path: ':id', component: DetailComponent}
-      ]}
-    ])
+      {
+        path: '', component: LayoutComponent, children: [
+          {path: '', component: RoutesComponent},
+          {path: ':id', component: DetailComponent},
+        ],
+      },
+    ]),
+    RouteDeliveriesModule,
   ],
   declarations: [RoutesComponent, DetailComponent, AddRouteComponent],
   providers: [],
