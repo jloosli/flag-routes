@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {DriversService} from '@flags/services/drivers.service';
-import {take} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
+import {debounceTime, filter} from 'rxjs/operators';
+import {IDriver} from '@flags/interfaces/driver';
 
 @Component({
   selector: 'jl-broadcast',
@@ -14,19 +14,22 @@ export class BroadcastComponent implements OnInit {
   locationForm: FormGroup;
 
   constructor(private fb: FormBuilder, private driversSvc: DriversService) {
+    this.locationForm = this.fb.group({
+      broadcast: [false],
+      name: [''],
+    });
   }
 
   ngOnInit() {
-    combineLatest([this.driversSvc.driver$, this.driversSvc.broadcast$])
-      .pipe(take(1))
-      .subscribe(([driver, broadcast]) => {
-        this.locationForm = this.fb.group({
-          broadcast: [broadcast],
-          name: [driver && driver.name || ''],
-        });
-        this.locationForm.get('broadcast')!.valueChanges.subscribe(broadcast => this.driversSvc.changeBroadcast(broadcast));
-        this.locationForm.get('name')!.valueChanges.subscribe(name => this.driversSvc.updateName(name));
+    this.driversSvc.driver$
+      .pipe(filter(driver => driver && !!driver.name))
+      .subscribe((driver: IDriver) => {
+        this.locationForm.get('name')!.setValue(driver.name);
       });
+    this.locationForm.get('broadcast')!.valueChanges.subscribe(broadcast => this.driversSvc.changeBroadcast(broadcast));
+    this.locationForm.get('name')!.valueChanges.pipe(
+      debounceTime(300),
+    ).subscribe(name => this.driversSvc.updateName(name));
 
 
   }

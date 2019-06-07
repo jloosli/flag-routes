@@ -51,6 +51,12 @@ export class DriversService {
     this.driver$ = this._driverID.pipe(
       filter(Boolean),
       switchMap(id => this.driversCollection.doc<IDriver>(id).valueChanges() as Observable<IDriver>),
+      tap(driver => {
+        if (driver && !driver.name) {
+          localForage.getItem('driver_name')
+            .then(name => name && this.driversCollection.doc(this._driverID.getValue() as string).set({name}, {merge: true}));
+        }
+      }),
     );
     this.broadcast$
       .pipe(
@@ -69,8 +75,10 @@ export class DriversService {
 
   async setDriverID(): Promise<void> {
     let id: string | undefined = undefined;
+    let name = '';
     try {
       id = await localForage.getItem('driver_id') as string;
+      name = await localForage.getItem('driver_name');
     } catch (err) {
     }
     if (!id) {
@@ -85,10 +93,10 @@ export class DriversService {
   }
 
   updateName(name: string = '') {
-    if (!this._hasGeo) {
-      return;
-    }
-    return this.af.collection('drivers').doc(this._driverID.getValue() || '').set({name}, {merge: true});
+    return Promise.all([
+      localForage.setItem('driver_name', name),
+      this.af.collection('drivers').doc(this._driverID.getValue() || '').set({name}, {merge: true}),
+    ]);
   }
 
   updateLocation({latitude, longitude, heading = 0}: Coordinates) {
