@@ -1,6 +1,9 @@
 <span *ngIf="locationForm" [formGroup]="locationForm" class="location-broadcast">
-      <mat-checkbox formControlName="broadcast"><mat-icon>explore</mat-icon> </mat-checkbox>
-      <mat-form-field>
+      <button (click)="locationForm.get('broadcast').setValue(!locationForm.get('broadcast').value)" mat-icon-button
+              matTooltip="Broadcast driver location">
+        <mat-icon [color]="locationForm.get('broadcast').value ? 'accent' : undefined">explore</mat-icon>
+      </button>
+      <mat-form-field *ngIf="locationForm.get('broadcast').value">
          <input formControlName="name" matInput placeholder="Name"/>
       </mat-form-field>
    </span>

@@ -1,8 +1,21 @@
 :host {
   color: white;
-  font-size: .8em;
+  font-size: .7em;
+}
 
-  mat-checkbox {
-    padding-right: 0.8rem;
+.location-broadcast {
+  display: flex;
+  align-items: flex-end;
+
+  button {
+    flex: 0 1 auto;
+  }
+
+  mat-form-field {
+    flex: 1 1 5em;
+
+    ::ng-deep .mat-form-field-infix {
+      width: 100%;
+    }
   }
 }

@@ -1,10 +1,9 @@
 import {Injectable} from '@angular/core';
 import * as localForage from 'localforage';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, iif, interval, Observable, of} from 'rxjs';
 import * as firebase from 'firebase/app';
-import _throttle from 'lodash-es/throttle';
-import {distinctUntilChanged, filter, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {catchError, distinctUntilChanged, filter, shareReplay, switchMap, tap, throttle} from 'rxjs/operators';
 import {IDriver} from '@flags/interfaces/driver';
 
 @Injectable({
@@ -12,33 +11,32 @@ import {IDriver} from '@flags/interfaces/driver';
 })
 export class DriversService {
 
-  private static DRIVER_EXPIRATION = 15 * 60 * 1000;
-  broadcast$: Observable<boolean>;
-  private _broadcast$ = new BehaviorSubject(false);
-  private _driverID = new BehaviorSubject<string | null>(null);
-
-  static readonly POSITION_DEBOUNCE = 5000;
-  private _error$ = new BehaviorSubject<string | null>(null);
-  drivers$: Observable<IDriver[]>;
-
-  driver$: Observable<IDriver>;
-  private gps_options = {
+  private static DRIVER_EXPIRATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+  private static readonly POSITION_THROTTLE_TIME = 5000;
+  private static GPS_OPTIONS = {
     enableHighAccuracy: true,
     maximumAge: 30000,
     timeout: 27000,
   };
-  error$ = this._error$.asObservable();
-  private success = _throttle((position: Position) => {
-    // this.errors.next(null);
-    const {coords} = position;
-    this.updateLocation(coords.latitude, coords.longitude);
-  }, DriversService.POSITION_DEBOUNCE, {leading: true});
+  private _broadcast$ = new BehaviorSubject(false);
+  private _driverID = new BehaviorSubject<string | null>(null);
+  currentPosition$: Observable<Position> = new Observable(observer => {
+    const onSuccess: PositionCallback = (pos: Position) => observer.next(pos);
+    const onError: PositionErrorCallback = (error) => observer.error(error);
+    const options: PositionOptions = DriversService.GPS_OPTIONS;
+    const watcher: number = navigator.geolocation.watchPosition(onSuccess, onError, options);
+    return () => navigator.geolocation.clearWatch(watcher);
+  });
+  broadcast$: Observable<boolean> = this._broadcast$.asObservable();
+
+  drivers$: Observable<IDriver[]>;
+
+  driver$: Observable<IDriver>;
+
   private readonly _hasGeo: boolean;
-  private _watch: number;
   private driversCollection: AngularFirestoreCollection<IDriver>;
 
   constructor(private af: AngularFirestore) {
-    this._hasGeo = 'geolocation' in navigator;
     this.driversCollection = this.af.collection('drivers');
     this.drivers$ = this.driversCollection.valueChanges({idField: 'id'}).pipe(
       tap(drivers => drivers.map(driver => {
@@ -54,14 +52,18 @@ export class DriversService {
       filter(Boolean),
       switchMap(id => this.driversCollection.doc<IDriver>(id).valueChanges() as Observable<IDriver>),
     );
-    this.broadcast$ = this._broadcast$.asObservable();
     this.broadcast$
-      .pipe(distinctUntilChanged()).subscribe(broadcast => {
-      if (broadcast) {
-        this.startTracking();
-      } else {
-        this.stopTracking();
-      }
+      .pipe(
+        distinctUntilChanged(),
+        switchMap(broadcast => iif(() => broadcast, this.currentPosition$, of(undefined))),
+        catchError(err => {
+          this.handleError(err);
+          return of(undefined);
+        }),
+        filter(Boolean),
+        throttle(() => interval(DriversService.POSITION_THROTTLE_TIME)),
+      ).subscribe(({coords}: Position) => {
+      this.updateLocation(coords);
     });
   }
 
@@ -89,27 +91,14 @@ export class DriversService {
     return this.af.collection('drivers').doc(this._driverID.getValue() || '').set({name}, {merge: true});
   }
 
-  updateLocation(lat: number, lng: number) {
-    if (!this._hasGeo) {
-      return;
-    }
+  updateLocation({latitude, longitude, heading = 0}: Coordinates) {
+    console.log(latitude, longitude, heading);
     const lastUpdate = firebase.firestore.FieldValue.serverTimestamp();
-    return this.af.collection('drivers').doc(this._driverID.getValue() || '').set({lat, lng, lastUpdate}, {merge: true});
+    return this.af.collection('drivers').doc(this._driverID.getValue() || '')
+      .set({latitude, longitude, heading, lastUpdate}, {merge: true});
   }
 
-  startTracking() {
-    this._watch = navigator.geolocation.watchPosition(
-      this.success,
-      e => this.error(e),
-      this.gps_options,
-    );
-  }
-
-  stopTracking() {
-    this._hasGeo && navigator.geolocation.clearWatch(this._watch);
-  }
-
-  private error(e: PositionError) {
+  private handleError(e: PositionError) {
     let errorMessage;
     switch (e.code) {
       case e.PERMISSION_DENIED:
@@ -123,7 +112,6 @@ export class DriversService {
         errorMessage = 'Sorry...something went wrong';
     }
     console.error(`Error: (${e.code}) ${e.message}`);
-    this._error$.next(e.message);
     console.log('Sorry, no position available.');
   }
 }
