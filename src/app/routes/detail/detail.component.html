@@ -34,6 +34,7 @@
       <ng-container matColumnDef="name">
         <th *matHeaderCellDef mat-header-cell> Name</th>
         <td *matCellDef="let delivery; let i=index" mat-cell> {{delivery.house.name}} ({{getIndexLetter(i)}})
+          ({{delivery.order}})
           <br/>{{delivery.house.street}} </td>
       </ng-container>
 

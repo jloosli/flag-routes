@@ -142,8 +142,9 @@ export class ImportExportService {
     routes.forEach(async (routeObj, name) => {
       const routeRef = await routeObj.routeRefPromise;
       const resolvedHouses: DocumentReference[] = await Promise.all(routeObj.houseRefs);
-      resolvedHouses.map((house_ref: DocumentReference) => {
-        accumulatedPromises.push(this.deliveriesSvc.addDelivery(routeRef, house_ref));
+      resolvedHouses.map((house_ref: DocumentReference, index) => {
+        console.log(house_ref, index);
+        accumulatedPromises.push(this.deliveriesSvc.addDelivery(routeRef, house_ref, index));
       });
     });
 

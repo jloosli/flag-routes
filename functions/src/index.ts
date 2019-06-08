@@ -75,22 +75,33 @@ const centerRoute = deliveryDocumentReference
 const addDeliveryToRoute = deliveryDocumentReference
   .onCreate(async (deliverySnap: DocumentSnapshot, context: functions.EventContext) => {
     const {deliveryId, routeId} = context.params;
+    const {name, order} = deliverySnap.data() as any;
     const houseReference = fs.collection('houses').doc(deliveryId);
     const routeRef = fs.collection('routes').doc(routeId);
     const routeSnap = await routeRef.get();
     const {name: routeName = '', house_count = 0} = routeSnap.data() || {};
-    return Promise.all([
-      routeRef.set({
-        house_count: house_count + 1,
-      }, {merge: true}),
-      houseReference.set({
-        route: {name: routeName, id: routeId},
-        route_ref: routeRef,
-      }, {merge: true}),
-      deliverySnap.ref.set({
+
+
+    const updateHouseCount = routeRef.update({
+      house_count: FieldValue.increment(1),
+    });
+    const updateHouseReference = houseReference.set({
+      route: {name: routeName, id: routeId},
+      route_ref: routeRef,
+    }, {merge: true});
+
+    const promises = [
+      updateHouseCount,
+      updateHouseReference,
+    ];
+    if (!order) {
+      const updateDeliveryOrder = deliverySnap.ref.set({
         order: house_count,
-      }, {merge: true}),
-    ]);
+      }, {merge: true});
+      promises.push(updateDeliveryOrder);
+    }
+    console.log(name, order);
+    return Promise.all(promises);
   });
 
 const reorderDeliveries = async (routeRef: DocumentReference, startingOrder: number) => {
