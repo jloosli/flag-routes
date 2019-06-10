@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ImportExportService} from '../services/import-export.service';
+import {ImportExportService} from '@flags/services/import-export.service';
 import {MatSnackBar} from '@angular/material';
 
 @Component({
