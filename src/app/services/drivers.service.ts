@@ -100,7 +100,6 @@ export class DriversService {
   }
 
   updateLocation({latitude, longitude, heading = 0}: Coordinates) {
-    console.log(latitude, longitude, heading);
     const lastUpdate = firebase.firestore.FieldValue.serverTimestamp();
     return this.af.collection('drivers').doc(this._driverID.getValue() || '')
       .set({latitude, longitude, heading, lastUpdate}, {merge: true});
