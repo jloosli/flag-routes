@@ -7,5 +7,5 @@ export interface Delivery extends FSItem {
   delivered: boolean;
   order: number;
   house_ref: DocumentReference;
-  house?:IHouse;
+  house?: IHouse;
 }

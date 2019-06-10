@@ -39,7 +39,6 @@ export class DriversService {
   constructor(private af: AngularFirestore) {
     this.driversCollection = this.af.collection('drivers');
     this.drivers$ = this.driversCollection.valueChanges({idField: 'id'}).pipe(
-      tap(x => console.log(x)),
       tap(drivers => drivers.map(driver => {
         const {lastUpdate} = driver;
         if (lastUpdate && 'toDate' in lastUpdate && (+new Date() - +lastUpdate.toDate()) > DriversService.DRIVER_EXPIRATION) {

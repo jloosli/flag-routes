@@ -4,7 +4,7 @@ import {IHouse} from '@flags/interfaces/house';
 import {Delivery} from '@flags/interfaces/delivery';
 import {combineLatest, Observable} from 'rxjs';
 import {HouseService} from '@flags/services/house.service';
-import {map, shareReplay, tap} from 'rxjs/operators';
+import {map, shareReplay} from 'rxjs/operators';
 import {collSnapshotWithIDs} from '../shared/rxPipes';
 
 @Injectable({
@@ -22,7 +22,7 @@ export class DeliveriesService {
       delivered: false,
       house_ref: houseRef,
     };
-    if (order !== null) {
+    if (Number.isInteger(order as number)) {
       delivery.order = order;
     }
     console.log(delivery);
@@ -56,7 +56,6 @@ export class DeliveriesService {
     const deliveriesObs = this.fs.doc(routeRef).collection<Delivery>('deliveries', ref => ref.orderBy('order'))
       .snapshotChanges().pipe(
         collSnapshotWithIDs<Delivery>(),
-        tap(x => console.log(x)),
       );
     let obs: Observable<Delivery[]>;
     if (withHouses) {
@@ -84,10 +83,8 @@ export class DeliveriesService {
       .collection('deliveries', ref => ref.where('order', '>=', Math.min(prev, curr))
         .where('order', '<=', Math.max(prev, curr)))
       .get().toPromise();
-    console.log(deliveriesSnap.size);
     const change = prev < curr ? -1 : 1;
     deliveriesSnap.forEach(delivery => {
-      console.log(delivery.data());
       let {order} = delivery.data();
       if (order === prev) {
         order = curr;

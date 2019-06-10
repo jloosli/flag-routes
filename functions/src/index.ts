@@ -24,7 +24,7 @@ const setHouseCoordinates = functions.firestore.document('/houses/{houseId}')
     const {street: beforeStreet = undefined} = change.before.data() as { street: string } || {};
     const {street: afterStreet = undefined} = change.after.data() as { street: string } || {};
     if (!afterStreet || beforeStreet === afterStreet) {
-      return 0;
+      return;
     }
     const {houseId} = context.params;
     console.log('setHouseCoordinates', houseId, afterStreet);
@@ -103,14 +103,17 @@ const addDeliveryToRoute = deliveryDocumentReference
     return Promise.all(promises);
   });
 
-const reorderDeliveries = async (routeRef: DocumentReference, startingOrder: number) => {
-  let order = startingOrder;
+const reorderDeliveries = async (routeRef: DocumentReference) => {
+  let order = 0;
   console.log('Reorder from ', order);
   const deliveriesSnap = await routeRef.collection('deliveries')
-    .orderBy('order').where('order', '>=', order).get();
+    .orderBy('order').get();
   const deliveryUpdates: Promise<any>[] = [];
   deliveriesSnap.forEach((deliverySnap: QueryDocumentSnapshot) => {
-    deliveryUpdates.push(deliverySnap.ref.update({order: FieldValue.increment(1)}));
+    const {order: currentOrder} = deliverySnap.data();
+    const diff = order - currentOrder;
+    deliveryUpdates.push(deliverySnap.ref.update({order: FieldValue.increment(diff)}));
+    order++;
   });
   return Promise.all(deliveryUpdates);
 };
@@ -121,14 +124,13 @@ const removeDeliveryFromRoute = deliveryDocumentReference
     const {deliveryId, routeId} = context.params;
     const houseReference = fs.collection('houses').doc(deliveryId);
     const routeRef = fs.collection('routes').doc(routeId);
-    const {order = null} = deliverySnap.data() || {};
 
     return routeRef.update({
       house_count: FieldValue.increment(-1),
     }).then(() => houseReference.update({
       route: FieldValue.delete(),
       route_ref: FieldValue.delete(),
-    })).then(() => reorderDeliveries(routeRef as unknown as DocumentReference, order));
+    })).then(() => reorderDeliveries(routeRef as unknown as DocumentReference));
 
   });
 
