@@ -1,0 +1,24 @@
+<h2>Import/Export Data</h2>
+<mat-card>
+  <mat-card-title>Download</mat-card-title>
+  <button type="button" mat-raised-button color="accent" (click)="exportData()">Download Data/Template</button>
+</mat-card>
+
+<input #fileInput (change)="fileChange($event)" hidden name="uploadFile" type="file"/>
+
+<mat-card>
+  <mat-card-title>Upload</mat-card-title>
+  <mat-card-content>
+    <button (click)="fileInput.click()" mat-stroked-button>Select File</button>
+    {{fileToUpload?.name}}
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button (click)="readFile()" *ngIf="fileSelected" [disabled]="importing" class="upload-button" color="warn"
+            mat-stroked-button
+            type="button">
+      <span *ngIf="!importing">Upload (WARNING: overwrites existing data)</span>
+      <span *ngIf="importing">Importing...</span>
+    </button>
+  </mat-card-actions>
+</mat-card>
+

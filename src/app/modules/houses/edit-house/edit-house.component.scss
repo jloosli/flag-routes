@@ -1,0 +1,11 @@
+form {
+  display: flex;
+  flex-flow: row wrap;
+  & > * {
+    flex: 1 1 20rem;
+    margin: 0.5rem;
+  }
+  mat-select {
+    margin-top: 1rem;
+  }
+}

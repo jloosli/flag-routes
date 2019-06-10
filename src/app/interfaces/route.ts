@@ -1,8 +1,12 @@
-export interface IRoute {
-  $key?: string;
-  deliveries?: { [id: string]: boolean };
-  houses?: Array<string>;
+import {IHouse} from '@flags/interfaces/house';
+import {FSItem} from '@flags/interfaces/fsitem';
+
+export interface IRoute extends FSItem {
+  order?: number;
   lat?: number;
   lng?: number;
   name: string;
+  house_count: number;
+  delivered_count?: number;
+  houses?: IHouse[];
 }

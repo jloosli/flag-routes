@@ -1,0 +1,9 @@
+<div class="fab">
+  <button (click)="addRoute()" mat-fab matTooltip="Add new route">
+    <mat-icon class="mat-24">add</mat-icon>
+  </button>
+</div><h2>Routes</h2>
+<mat-card *ngFor="let route of routes$ | async" (click)="gotoRoute(route.id)">
+  <mat-card-title>{{route.name}}</mat-card-title>
+  <mat-card-subtitle>{{route.house_count || 0}} Houses</mat-card-subtitle>
+</mat-card>

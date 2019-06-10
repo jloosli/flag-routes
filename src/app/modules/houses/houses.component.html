@@ -1,0 +1,17 @@
+<div class="fab">
+  <button (click)="editHouse()" mat-fab matTooltip="Add new house">
+    <mat-icon class="mat-24">add</mat-icon>
+  </button>
+</div>
+<h2>Houses</h2>
+<table [dataSource]="housesSource" mat-table>
+  <mat-text-column name="name"></mat-text-column>
+  <mat-text-column name="street"></mat-text-column>
+  <mat-text-column name="notes"></mat-text-column>
+  <ng-container matColumnDef="route">
+    <th *matHeaderCellDef mat-header-cell> Route</th>
+    <td *matCellDef="let house" mat-cell> {{house?.route?.name}} </td>
+  </ng-container>
+  <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+  <tr (click)="editHouse(house)" *matRowDef="let house: columns: displayedColumns;" class="house-list" mat-row></tr>
+</table>

@@ -1,16 +1,17 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {HttpModule} from '@angular/http';
 
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app.routing';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import 'hammerjs';
-import {AngularFireDatabaseModule} from 'angularfire2/database';
 import {config} from '../environments/config';
-import {AngularFireModule} from 'angularfire2';
-import {AgmCoreModule} from 'angular2-google-maps/core';
+import {AngularFireModule} from '@angular/fire';
+import {AngularFirestoreModule} from '@angular/fire/firestore';
+import {AgmCoreModule} from '@agm/core';
+import {ServiceWorkerModule} from '@angular/service-worker';
+import {environment} from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -19,12 +20,12 @@ import {AgmCoreModule} from 'angular2-google-maps/core';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule,
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(config.firebaseConfig),
+    AngularFirestoreModule,
     AgmCoreModule.forRoot({apiKey: config.google.maps.apiKey}),
-    AngularFireDatabaseModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [],
   bootstrap: [AppComponent]

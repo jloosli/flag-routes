@@ -1,0 +1,44 @@
+<h2>Delivery: {{(route$ | async)?.name}}</h2>
+<div class="results">
+  <aside>
+    <h3>Houses</h3>
+    <table [dataSource]="deliveriesSource" mat-table>
+
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggle($event):null"
+                        [checked]="allChecked$ | async"
+                        [indeterminate]="someChecked$ | async"
+          ></mat-checkbox>
+        </th>
+        <td *matCellDef="let delivery" mat-cell>
+          <mat-checkbox (change)="toggleDelivery($event, delivery.ref)"
+                        [checked]="delivery.delivered"></mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell>
+          House
+        </th>
+        <td *matCellDef="let delivery;let i=index" mat-cell>
+          <strong>{{delivery.house.name}} ({{getIndexLetter(i)}})</strong><br/>
+          {{delivery.house.street}}
+          <span *ngIf="delivery.house.notes"><br/><em>{{delivery.house.notes}}</em></span>
+        </td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let delivery; columns: displayedColumns;" mat-row></tr>
+    </table>
+
+
+  </aside>
+  <div *ngIf="route$ | async as route" class="map">
+
+    <agm-map [latitude]="(route$ | async).lat" [longitude]="(route$ | async).lng" [zoom]="zoom">
+      <app-route-deliveries [routeRef]="route.ref"></app-route-deliveries>
+      <app-driver-tokens></app-driver-tokens>
+    </agm-map>
+  </div>
+</div>

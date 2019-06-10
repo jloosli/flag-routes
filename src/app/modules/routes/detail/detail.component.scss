@@ -1,0 +1,36 @@
+.sebm-google-map-container {
+  height: 70vh;
+  margin-top: 4rem;
+}
+
+aside {
+  flex: 1 1 200px;
+  margin: 0 0.5rem;
+}
+
+.sebm-google-map-container {
+  flex: 5 1 400px;
+}
+
+.results {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+header {
+  display: flex;
+  .action-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+  }
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+  }
+}
+
+.cdk-drag-handle {
+  cursor: move;
+}

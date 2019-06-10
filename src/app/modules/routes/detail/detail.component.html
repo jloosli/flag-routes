@@ -1,0 +1,81 @@
+<header>
+  <h2>Route: {{(route$ | async)?.name}}</h2>
+  <div class="action-wrapper">
+    <button mat-icon-button (click)="editRoute = !editRoute">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <div class="actions" *ngIf="editRoute">
+      <mat-form-field>
+        <input [(ngModel)]="routeName" matInput placeholder="Route Name"
+               (ngModelChange)="routeNameChange($event)"/>
+      </mat-form-field>
+      <div class="remove-route">
+        <mat-menu #removeAlert="matMenu">
+          <button mat-menu-item (click)="deleteRoute()"> Are you sure?</button>
+        </mat-menu>
+
+        <button mat-button color="warn" [matMenuTriggerFor]="removeAlert">Delete Route</button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="results">
+  <aside>
+    <h3>Houses</h3>
+    <table (cdkDropListDropped)="drop($event)" [dataSource]="deliveriesSource" cdkDropList mat-table>
+      <ng-container matColumnDef="handle">
+        <th *matHeaderCellDef mat-header-cell>Order</th>
+        <td *matCellDef="let delivery" mat-cell>
+          <mat-icon cdkDragHandle>drag_indicator</mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell> Name</th>
+        <td *matCellDef="let delivery; let i=index" mat-cell> {{delivery.house.name}} ({{getIndexLetter(i)}})
+          ({{delivery.order}})
+          <br/>{{delivery.house.street}} </td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="remove">
+        <th *matHeaderCellDef mat-header-cell> Remove?</th>
+        <td *matCellDef="let delivery" mat-cell>
+          <button (click)="remove(delivery.id)" mat-icon-button>
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr *matRowDef="let row; columns: displayedColumns;" [cdkDragData]="row" cdkDrag mat-row></tr>
+    </table>
+  </aside>
+  <agm-map *ngIf="(route$ | async) as route" [latitude]="route.lat"
+           [longitude]="route.lng" [zoom]="zoom">
+    <app-route-deliveries [routeRef]="route.ref"></app-route-deliveries>
+  </agm-map>
+  <aside *ngIf="(housesWithoutRoutes$ | async)?.length > 0" class="unused-houses">
+    <h3>Unassigned Houses</h3>
+    <table [dataSource]="housesWithoutRoutes$" mat-table>
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell> Name</th>
+        <td *matCellDef="let house" mat-cell> {{house.name}}<br/>{{house.street}} </td>
+      </ng-container>
+
+      <!-- Weight Column -->
+      <ng-container matColumnDef="add">
+        <th *matHeaderCellDef mat-header-cell> Remove?</th>
+        <td *matCellDef="let house" mat-cell>
+          <button (click)="add(house.ref)" mat-icon-button>
+            <mat-icon>add</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr *matRowDef="let row; columns: unassignedColumns;" mat-row></tr>
+    </table>
+
+  </aside>
+</div>

@@ -1,0 +1,8 @@
+<button (click)="toggleBroadcast()" mat-icon-button
+        matTooltip="Broadcast driver location">
+  <mat-icon [color]="(broadcast$ | async) ? 'accent' : undefined">explore</mat-icon>
+</button>
+<mat-form-field *ngIf="broadcast$ | async">
+  <input [formControl]="driverNameInput" matInput placeholder="Name"/>
+</mat-form-field>
+

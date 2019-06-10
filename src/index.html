@@ -7,20 +7,30 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/icon?family=Open+Sans|Material+Icons|Roboto:300,400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Roboto:300,400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="/manifest.json">
   <style>
     .loading {
       width: 100vw;
       height: 100vh;
       display: flex;
+      flex-flow: column;
       justify-content: center;
       align-items: center;
     }
+    .loading h1 {
+      text-align: center;
+      font-family: Roboto, "Helvetica Neue", sans-serif;
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
   </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1976d2">
 </head>
 <body>
-  <app-root>Loading...<div class="loading"><img src="assets/icons/gears.svg" /></div></app-root>
+  <app-root><div class="loading"><h1>Flag Routes</h1><img src="assets/icons/gears.svg"/></div></app-root>
+  <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 </html>

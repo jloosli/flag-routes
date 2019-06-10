@@ -1,0 +1,34 @@
+.sebm-google-map-container {
+  height: 80vh;
+}
+
+aside {
+  flex: 1 1 200px;
+  table {
+    width: 100%;
+  }
+}
+
+.action-wrapper {
+  margin: 1rem auto;
+  max-width: 800px;
+  .position{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+  }
+  .checkAll {
+    display: flex;
+    justify-content: space-around;
+  }
+
+}
+
+.map {
+  flex: 5 1 400px;
+}
+
+.results {
+  display: flex;
+  flex-flow: row wrap;
+}

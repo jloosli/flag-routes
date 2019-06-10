@@ -1,7 +1,10 @@
+import * as firebase from 'firebase/app';
+
 export interface IDriver {
   name?: string;
-  $key?: string;
-  lat?: number;
-  lng?: number;
-  lastUpdate?: Object | number;
+  id?: string;
+  latitude?: number;
+  longitude?: number;
+  heading?: number;
+  lastUpdate?: Date | firebase.firestore.Timestamp;
 }

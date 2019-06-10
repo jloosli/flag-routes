@@ -1,57 +1,56 @@
 import {Injectable} from '@angular/core';
 import {HouseService} from './house.service';
-import 'rxjs/add/operator/withLatestFrom';
-import {IHouse} from '../interfaces/house';
-import {IRoute} from '../interfaces/route';
-import {RouteService} from './route.service';
-import * as _ from 'lodash';
 
-@Injectable()
+import {IHouse} from '@flags/interfaces/house';
+import {RouteService} from './route.service';
+import {combineLatest} from 'rxjs/internal/observable/combineLatest';
+import {map, take} from 'rxjs/operators';
+import {DocumentReference} from '@angular/fire/firestore';
+import {DeliveriesService} from '@flags/services/deliveries.service';
+import {Observable} from 'rxjs';
+
+@Injectable({
+  providedIn: 'root',
+})
 export class ImportExportService {
 
   private static FIELDS: Array<string> = ['Name', 'Street', 'Notes', 'Route'];
+  public static CSV_MIME = 'data:text/csv;charset=utf-8';
 
-  constructor(private houseSvc: HouseService, private routeSvc: RouteService) {
+  constructor(private houseSvc: HouseService, private routeSvc: RouteService, private deliveriesSvc: DeliveriesService) {
   }
 
-  getDatastring(data: string): string {
-    const csvContent = 'data:text/csv;charset=utf-8,' + data;
-    return encodeURI(csvContent);
-  }
-
-  exportData(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.houseSvc.routes$
-        .withLatestFrom(this.houseSvc.houses$, this.houseSvc.unassignedHouses$)
-        .first()
-        .subscribe((items) => {
-          let [routes, houses, unassigned] = items;
-          const routesToReturn = {};
-          routes.forEach(route => {
-            routesToReturn[route.name] = route.houses.map(house_key => _.find(houses, house => house.$key === house_key));
-          });
-          routesToReturn[''] = unassigned;
-          const flattened = this.flattenData(routesToReturn);
-          const stringified = this.stringify(flattened);
-          const dataString = this.getDatastring(stringified);
-          resolve(dataString);
+  exportData(): Observable<string> {
+    return combineLatest([this.routeSvc.routesWithHouses$, this.houseSvc.houses$]).pipe(
+      take(1),
+      map(([routes, houses]) => {
+        const routesToReturn: any[] = [];
+        routes.map(route => {
+          if (route.houses) {
+            route.houses.map(house => routesToReturn.push({
+              name: house.name,
+              street: house.street,
+              notes: house.notes,
+              route: route.name,
+            }));
+          }
         });
-    });
+        houses.filter(house => !Boolean(house.route_ref)).map(house => routesToReturn.push({
+          name: house.name,
+          street: house.street,
+          notes: house.notes,
+          route: '',
+        }));
+        const flattened = this.flattenData(routesToReturn);
+        return this.stringify(flattened);
+      }),
+    );
   }
 
-  private flattenData(data: Object) {
-    let flattened = [];
+  private flattenData(data: any[]) {
+    const flattened = [];
     flattened.push(ImportExportService.FIELDS);
-    for (const key in data) {
-      data[key].forEach(house => {
-        const tmp = [];
-        ImportExportService.FIELDS.slice(0, 3).forEach(field => {
-          tmp.push(house[field.toLowerCase()]);
-        });
-        tmp.push(key);
-        flattened.push(tmp);
-      });
-    }
+    data.map(house => flattened.push([house.name, house.street, house.notes, house.route || '']));
     return flattened;
   }
 
@@ -73,10 +72,13 @@ export class ImportExportService {
 
   importFile(file: File, delimiter: string = ','): Promise<any> {
     return new Promise((resolve, reject) => {
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = (() => {
-        const result = reader.result;
-        let exploded_result: Array<Array<string>> = [];
+        const result: string = reader.result as string;
+        const exploded_result: Array<Array<string>> = [];
+        if (!result) {
+          return reject('Nothing uploaded');
+        }
         result.split('\n').forEach(row => {
           if (row.length > 0) {
             exploded_result.push(row.split(delimiter).map(item => {
@@ -85,8 +87,9 @@ export class ImportExportService {
           }
         });
         if (this.checkImportedData(exploded_result)) {
-          this.importData(exploded_result)
-            .then(() => resolve())
+          this.clearAllData()
+            .then(() => this.importData(exploded_result))
+            .then((importStats) => resolve(importStats))
             .catch(reject);
         } else {
           reject('File is not formatted properly. Please check the format and upload again.');
@@ -104,53 +107,54 @@ export class ImportExportService {
     return data[0] && data[0].length === ImportExportService.FIELDS.length;
   }
 
-  private importData(data: Array<Array<string>>): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (data.length === 1) {
-        return reject('No data to import');
-      }
-
-      this.clearAllData().then(() => {
-        const routePromises = [];
-        const routes = {};
-        data.forEach((row, idx) => {
-          if (idx > 0) {
-            let [name, street, notes, route] = row;
-            let house: IHouse = {
-              name: name,
-              street: street,
-              notes: notes
-            };
-            routes[route] = routes[route] || [];
-            routes[route].push(this.houseSvc.saveHouse(house));
+  private async importData(data: Array<Array<string>>): Promise<any> {
+    if (data.length <= 1) {
+      throw new Error('No data to import');
+    }
+    const routes = new Map<string, { name: string, routeRefPromise: Promise<DocumentReference>, houseRefs: Promise<DocumentReference>[] }>();
+    const accumulatedPromises: Promise<any>[] = [];
+    let houseCount = 0;
+    data.forEach((row, idx) => {
+      if (idx > 0) {
+        const [name, street, notes, route] = row;
+        const house: IHouse = {
+          name: name,
+          street: street,
+          notes: notes,
+        };
+        const housePromise = this.houseSvc.saveHouse(house);
+        houseCount++;
+        if (route) {
+          if (!routes.has(route)) {
+            routes.set(route, {
+              name: route,
+              routeRefPromise: this.routeSvc.add(route, routes.size),
+              houseRefs: [],
+            });
           }
-        });
-        for (let name in routes) {
-          Promise.all(routes[name]).then(resolvedHouses => {
-            if (name) {
-              let route: IRoute = {
-                name: name,
-                houses: [],
-                deliveries: {}
-              };
-              resolvedHouses.forEach((house_key: string) => {
-                route.houses.push(house_key);
-              });
-              routePromises.push(this.routeSvc.save(route));
-            }
-          });
+          routes.get(route)!.houseRefs.push(housePromise);
+        } else {
+          accumulatedPromises.push(housePromise);
         }
-        Promise.all(routePromises).then(_ => resolve());
+      }
+    });
+
+    routes.forEach(async (routeObj, name) => {
+      const routeRef = await routeObj.routeRefPromise;
+      const resolvedHouses: DocumentReference[] = await Promise.all(routeObj.houseRefs);
+      resolvedHouses.map((house_ref: DocumentReference, index) => {
+        console.log(house_ref.id, index);
+        accumulatedPromises.push(this.deliveriesSvc.addDelivery(routeRef, house_ref, index));
       });
     });
+
+    await Promise.all(accumulatedPromises);
+    return {houseCount: houseCount, routeCount: routes.size};
   }
 
   private clearAllData(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      Promise.all([this.houseSvc.clearHouses(), this.routeSvc.clearRoutes()])
-        .then(resolve)
-        .catch(reject);
-    });
+    return this.routeSvc.clearAllRoutes()
+      .then(() => this.houseSvc.clearAllHouses());
   }
 
 }

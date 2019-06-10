@@ -1,0 +1,16 @@
+<h2>Flag Routes</h2>
+
+<div class="routes">
+  <mat-card *ngFor="let route of routesWithHouses$ | async" class="route" (click)="goToDelivery(route.id)">
+    <mat-card-title>{{route.name}}</mat-card-title>
+    <mat-card-subtitle>{{deliveryStats(route)}}</mat-card-subtitle>
+    <mat-card-content>
+      <agm-map [latitude]="route.lat" [longitude]="route.lng" [zoom]="zoom"
+                       [mapDraggable]="false" [disableDefaultUI]="true"
+                       [zoomControl]="false" [streetViewControl]="false" [scrollwheel]="false">
+        <app-route-deliveries [routeRef]="route.ref"></app-route-deliveries>
+        <app-driver-tokens></app-driver-tokens>
+      </agm-map>
+    </mat-card-content>
+  </mat-card>
+</div>

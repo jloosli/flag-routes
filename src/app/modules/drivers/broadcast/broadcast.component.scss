@@ -1,0 +1,19 @@
+:host {
+  color: white;
+  font-size: .7em;
+
+  display: flex;
+  align-items: flex-end;
+
+  button {
+    flex: 0 1 auto;
+  }
+
+  mat-form-field {
+    flex: 1 1 5em;
+
+    ::ng-deep .mat-form-field-infix {
+      width: 100%;
+    }
+  }
+}
