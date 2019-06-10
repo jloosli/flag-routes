@@ -143,7 +143,7 @@ export class ImportExportService {
       const routeRef = await routeObj.routeRefPromise;
       const resolvedHouses: DocumentReference[] = await Promise.all(routeObj.houseRefs);
       resolvedHouses.map((house_ref: DocumentReference, index) => {
-        console.log(house_ref, index);
+        console.log(house_ref.id, index);
         accumulatedPromises.push(this.deliveriesSvc.addDelivery(routeRef, house_ref, index));
       });
     });

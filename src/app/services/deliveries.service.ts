@@ -22,9 +22,10 @@ export class DeliveriesService {
       delivered: false,
       house_ref: houseRef,
     };
-    if (order) {
+    if (order !== null) {
       delivery.order = order;
     }
+    console.log(delivery);
     const deliveryDoc = this.fs.doc(routeRef).collection('deliveries').doc(houseRef.id);
     return deliveryDoc.set(delivery, {merge: true}).then(() => deliveryDoc.ref);
   }
