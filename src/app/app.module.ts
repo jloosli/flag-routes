@@ -12,6 +12,7 @@ import {AngularFirestoreModule} from '@angular/fire/firestore';
 import {AgmCoreModule} from '@agm/core';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
+import {MaterialDesignModule} from '@flags/modules/material-design.module';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import {environment} from '../environments/environment';
     BrowserModule,
     FormsModule,
     BrowserAnimationsModule,
+    MaterialDesignModule,
     AngularFireModule.initializeApp(config.firebaseConfig),
     AngularFirestoreModule,
     AgmCoreModule.forRoot({apiKey: config.google.maps.apiKey}),

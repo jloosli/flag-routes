@@ -3,6 +3,6 @@
   <mat-icon [color]="(broadcast$ | async) ? 'accent' : undefined">explore</mat-icon>
 </button>
 <mat-form-field *ngIf="broadcast$ | async">
-  <input [formControl]="driverNameInput" matInput placeholder="Name"/>
+  <input [formControl]="driverNameInput" matInput placeholder="Driver Name"/>
 </mat-form-field>
 
