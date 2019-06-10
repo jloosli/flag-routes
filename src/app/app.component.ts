@@ -14,8 +14,7 @@ export class AppComponent {
     this.updates.available.pipe(
       tap(availableEvent => console.log(availableEvent)),
       switchMap(() => this.snack.open('Update available.', 'Refresh?').onAction()),
-    ).subscribe(() => this.updates.activateUpdate()
-      .then(() => this.document.location.reload()),
-    );
+      switchMap(() => this.updates.activateUpdate()),
+    ).subscribe(() => this.document.location.reload());
   }
 }
