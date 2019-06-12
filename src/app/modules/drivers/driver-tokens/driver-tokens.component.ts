@@ -26,6 +26,7 @@ export class DriverTokensComponent implements OnInit {
       }, 100);
       timeout();
     });
+
     this.drivers$ = combineLatest([this.driversSvc.drivers$, googleMaps$]).pipe(
       map(([drivers, maps]) => drivers.map(driver => {
         return {
