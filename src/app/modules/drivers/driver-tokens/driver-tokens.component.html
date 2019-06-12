@@ -1,3 +1,2 @@
 <agm-marker *ngFor="let driver of drivers$ | async " [label]="driver.name" [latitude]="driver.latitude"
-            [longitude]="driver.longitude"
-></agm-marker>
+            [iconUrl]="driver.iconUrl" [longitude]="driver.longitude"></agm-marker>
