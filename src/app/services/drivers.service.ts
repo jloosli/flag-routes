@@ -40,6 +40,7 @@ export class DriversService {
     // @todo: At some point, use the wakelock api (https://developers.google.com/web/updates/2018/12/wakelock)
     const noSleep = new NoSleep();
     noSleep.enable();
+    observer.next(true);
     return () => noSleep.disable();
   });
 
