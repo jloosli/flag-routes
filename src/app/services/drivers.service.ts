@@ -36,6 +36,14 @@ export class DriversService {
   private readonly _hasGeo: boolean;
   private driversCollection: AngularFirestoreCollection<IDriver>;
 
+  private wakeLock$: Observable<boolean> = new Observable(async (observer) => {
+    // @todo: At some point, use the wakelock api (https://developers.google.com/web/updates/2018/12/wakelock)
+    const noSleep = new NoSleep();
+    noSleep.enable();
+    return () => noSleep.disable();
+  });
+
+
   constructor(private af: AngularFirestore) {
     this.driversCollection = this.af.collection('drivers');
     this.drivers$ = this.driversCollection.valueChanges({idField: 'id'}).pipe(
@@ -74,7 +82,7 @@ export class DriversService {
   }
 
   async setDriverID(): Promise<void> {
-    let id: string | undefined = undefined;
+    let id: string | undefined;
     let name = '';
     try {
       id = await localForage.getItem('driver_id') as string;
