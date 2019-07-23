@@ -37,7 +37,7 @@ export class DriversService {
   private readonly _hasGeo: boolean;
   private driversCollection: AngularFirestoreCollection<IDriver>;
 
-  private wakeLock$: Observable<boolean> = new Observable(async (observer) => {
+  private wakeLock$: Observable<boolean> = new Observable((observer) => {
     // @todo: At some point, use the wakelock api (https://developers.google.com/web/updates/2018/12/wakelock)
     const noSleep = new NoSleep();
     noSleep.enable();
