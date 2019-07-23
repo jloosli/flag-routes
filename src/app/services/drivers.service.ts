@@ -5,6 +5,7 @@ import {BehaviorSubject, iif, interval, Observable, of} from 'rxjs';
 import * as firebase from 'firebase/app';
 import {catchError, distinctUntilChanged, filter, shareReplay, switchMap, tap, throttle} from 'rxjs/operators';
 import {IDriver} from '@flags/interfaces/driver';
+import NoSleep from 'nosleep.js';
 
 @Injectable({
   providedIn: 'root',
@@ -80,6 +81,11 @@ export class DriversService {
       ).subscribe(({coords}: Position) => {
       this.updateLocation(coords);
     });
+
+    this.broadcast$.pipe(
+      distinctUntilChanged(),
+      switchMap(broadcast => iif(() => broadcast, this.wakeLock$, of(undefined))),
+    ).subscribe(x => console.log(x));
   }
 
   async setDriverID(): Promise<void> {
