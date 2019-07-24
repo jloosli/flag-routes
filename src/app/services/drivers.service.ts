@@ -14,10 +14,11 @@ export class DriversService {
 
   private static DRIVER_EXPIRATION = 15 * 60 * 1000; // 15 minutes in milliseconds
   private static readonly POSITION_THROTTLE_TIME = 5000;
-  private static GPS_OPTIONS = {
+  private static GPS_OPTIONS: PositionOptions = {
     enableHighAccuracy: true,
     maximumAge: 30000,
     timeout: 27000,
+
   };
   private _broadcast$ = new BehaviorSubject(false);
   private _driverID = new BehaviorSubject<string | null>(null);

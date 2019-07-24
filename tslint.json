@@ -73,6 +73,15 @@
       "single"
     ],
     "trailing-comma": false,
+    "variable-name": {
+      "options": [
+        "check-format",
+        "allow-leading-underscore",
+        "allow-snake-case",
+        "allow-pascal-case",
+        "ban-keywords"
+      ]
+    },
     "no-conflicting-lifecycle": true,
     "no-host-metadata-property": true,
     "no-input-rename": true,
